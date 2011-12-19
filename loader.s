@@ -1,5 +1,5 @@
 global loader                           ; making entry point visible to linker
- 
+
 extern kmain                            ; kmain is defined in kmain.cpp
 BITS 32
 ; setting up the Multiboot header - see GRUB docs for details
@@ -17,8 +17,8 @@ align 4
     dd CHECKSUM
  
 ; reserve initial kernel stack space
-STACKSIZE equ 0x4000                    ; that's 16k.
- 
+STACKSIZE equ 0x4000                    ; that's a lot.
+_start: 
 loader:
     mov  esp, stack + STACKSIZE         ; set up the stack
     push eax                            ; Multiboot magic number
@@ -30,9 +30,9 @@ loader:
 .hang:
     hlt                                 ; halt machine should kernel return
     jmp  .hang
- 
+
 section .bss
- 
+
 align 4
 stack:
     resb STACKSIZE                      ; reserve 16k stack on a doubleword boundary

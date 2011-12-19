@@ -6,14 +6,21 @@ LD_OPTS=-melf_i386
 AS_OPTS=-f elf32
 GRUB_URL=ftp://alpha.gnu.org/gnu/grub/grub-0.97-i386-pc.tar.gz
 # Bootstrap code taken from wiki.osdev.org/Bare_bones
-all: tvtypewriter.bin
+all: x86term
+floppy: floppy.img
 clean:
-	rm *.o *.bin
+	rm -f *.o *.bin *.img x86term
 loader.o: loader.s
 	$(AS) $(AS_OPTS) -o $@ $?
-tvtypewriter.o: tvtypewriter.c
+x86term.o: x86term.c
 	$(CC) $(CC_OPTS) -o $@ $?
-tvtypewriter.bin: loader.o tvtypewriter.o 
+x86term: loader.o x86term.o
 	$(LD) $(LD_OPTS) -T linker.ld -o $@ $?
-test: tvtypewriter.bin
+test: x86term
 	qemu -kernel $?
+floppy.img: x86term
+	cat stage1 stage2 > floppy.img
+	dd if=/dev/zero append of=floppy.img bs=1 count=200
+	cat x86term >> floppy.img
+floppytest: floppy.img
+	qemu -fda floppy.img

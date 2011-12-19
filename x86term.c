@@ -10,8 +10,8 @@ volatile struct DISPLAY_STATE {
 } state;
 void term_putchar(unsigned char x, unsigned char y, unsigned char c, unsigned char attr)
 {
-    state.vidram[y*80*2+x*2] = c;
-    state.vidram[y*80*2+x*2+1] = attr;
+    state.vidram[y*state.columns*2+x*2] = c;
+    state.vidram[y*state.columns*2+x*2+1] = attr;
 }
 void advance_cur(unsigned short amount)
 {
@@ -47,8 +47,13 @@ void dumb_print(char* str)
     return;
 }
 
-void display_init(void* mbd)
+void display_init(void* mbd, unsigned int magic)
 {
+    if ( magic != 0x2BADB002 )
+    {
+        term_erase(0,0,80,25);
+        dumb_print("Something went horribly wrong with multiboot.\n");
+    }
     /* Dummy for now. */
     state.rows = 25;
     state.columns = 80;
@@ -58,13 +63,7 @@ void display_init(void* mbd)
 }
 void kmain( void* mbd, unsigned int magic )
 {
-    if ( magic != 0x2BADB002 )
-    {
-        /* Something went not according to specs. Print an error */
-        /* message and halt, but do *not* rely on the multiboot */
-        /* data structure. */
-    }
-    display_init(mbd);
+    display_init(mbd, magic);
     term_erase(0, 0, state.columns, state.rows);
     dumb_print("Hello World!\nThis is my first operating system.\n");
 

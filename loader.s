@@ -1,5 +1,6 @@
 global loader                           ; making entry point visible to linker
-
+global gdt
+global flush_segments
 extern kmain                            ; kmain is defined in kmain.cpp
 BITS 32
 ; setting up the Multiboot header - see GRUB docs for details
@@ -31,8 +32,18 @@ loader:
     hlt                                 ; halt machine should kernel return
     jmp  .hang
 
+flush_segments:
+    mov ax, 0x10
+    mov dx, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    ret
 section .bss
 
 align 4
 stack:
     resb STACKSIZE                      ; reserve 16k stack on a doubleword boundary
+gdt:
+    resb 0x0800                         ; reserve 4 8-byte entries for gdt;

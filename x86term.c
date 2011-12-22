@@ -2,9 +2,24 @@ typedef struct {
     unsigned char data;
     unsigned char attr;
 } VideoCell;
-#include "gdt.h"
-extern uint64_t* gdt;
-extern void (*flush_segments)(void);
+static unsigned long long gdt[5] = {
+0x0000000000000000,
+0x00CF9A000000FFFF,
+0x00CF92000000FFFF,
+0x00CFFA000000FFFF,
+0x00CFF2000000FFFF};
+typedef unsigned short uint16_t;
+typedef unsigned char uint8_t;
+typedef struct IDTDescr{
+   uint16_t offset_1; // offset bits 0..15
+   uint16_t selector; // a code segment selector in GDT or LDT
+   uint8_t zero;      // unused, set to 0
+   uint8_t type_attr; // type and attributes, see below
+   uint16_t offset_2; // offset bits 16..31
+} IDTEntry;
+IDTEntry interrupt_list[16];
+extern void (*set_lidt)(void*, int);
+extern void (*set_gdt)(void*, int);
 #define VIDEORAM ((unsigned char*)0xb8000)
 volatile struct DISPLAY_STATE {
     unsigned short rows, columns;
@@ -58,6 +73,18 @@ void print_byte(unsigned char val)
     str[0] = hexits[(val & 0xF0) >> 4];
     print(str);
 }
+void print_bytes_big(void* addr, short len)
+{
+    int i;
+    char* b_addr = (char*)addr;
+    print("0x");
+    for (i=len-1; i>=0; i--)
+    {
+        print_byte(b_addr[i]);
+    }
+    return;
+}
+
 void print_bytes(void* addr, short len)
 {
     int i;
@@ -83,31 +110,23 @@ void display_init(void* mbd, unsigned int magic)
     state.cur_column = 0;
     state.vidram = VIDEORAM;
 }
-void* p_gdtr;
-void load_gdt(void* loc, short length)
+void interrupt_handler(void)
 {
-    struct GDTR {
-        short length;
-        void* loc;
-    } gdtr;
-    gdtr.loc = loc;
-    gdtr.length = length - 1;
-    p_gdtr = &gdtr;
-    __asm__("lgdt p_gdtr");
-    flush_segments();
+    return;
 }
 void kmain( void* mbd, unsigned int magic )
 {
+    int i;
     display_init(mbd, magic);
     term_erase(0, 0, state.columns, state.rows);
     print("Hello World!\nThis is my first operating system.\n");
-    gdt[0] = create_descriptor(0, 0, 0);
-    gdt[1] = create_descriptor(0, 0x000FFFFF, (GDT_CODE_PL0));
-    gdt[2] = create_descriptor(0, 0x000FFFFF, (GDT_DATA_PL0));
-    load_gdt(gdt, 3);
+    for (i=0; i<5; i++)
+    {
+        print("\n");
+        print_bytes_big(gdt+i, sizeof(gdt[i]));
+    }
+    set_gdt(gdt, 5);
+    print("\nWe made it here without exploding.\n");
     /* Print a letter to screen to see everything is working: */
-    uint32_t test = 0xDEADBEEF;
-    print("We made it here without exploding.\n");
-    print_bytes(&test, sizeof(test));
 }
 

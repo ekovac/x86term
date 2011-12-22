@@ -1,7 +1,10 @@
 global loader                           ; making entry point visible to linker
-global gdt
-global flush_segments
+extern gdt
+extern interrupt_handler
+global set_gdt
 extern kmain                            ; kmain is defined in kmain.cpp
+extern print_byte
+extern print_bytes
 BITS 32
 ; setting up the Multiboot header - see GRUB docs for details
 MODULEALIGN equ  1<<0                   ; align loaded modules on page boundaries
@@ -18,6 +21,7 @@ align 4
     dd CHECKSUM
  
 ; reserve initial kernel stack space
+GDTSIZE equ 0x0800
 STACKSIZE equ 0x4000                    ; that's a lot.
 _start: 
 loader:
@@ -32,6 +36,19 @@ loader:
     hlt                                 ; halt machine should kernel return
     jmp  .hang
 
+gdtr DW 0
+     DD 0
+idtr DW 0
+     DD 0
+set_gdt:
+    mov eax, [esp+8]
+    mov [gdtr+2], eax
+    mov eax, [esp+12]
+    mov [gdtr], eax
+    lgdt [gdtr]
+    jmp 0x08:flush_segments
+    ret
+
 flush_segments:
     mov ax, 0x10
     mov dx, ax
@@ -40,10 +57,13 @@ flush_segments:
     mov gs, ax
     mov ss, ax
     ret
+simple_isr:
+    pushad
+    call interrupt_handler
+    popad
+
 section .bss
 
 align 4
 stack:
     resb STACKSIZE                      ; reserve 16k stack on a doubleword boundary
-gdt:
-    resb 0x0800                         ; reserve 4 8-byte entries for gdt;

@@ -1,9 +1,14 @@
 global loader                           ; making entry point visible to linker
 extern gdt
 extern interrupt_handler
+global init_pic
+global set_imask
 global set_gdt
-global set_lidt;
-global simple_isr 
+global set_lidt
+global kb_isr
+global serial_isr 
+global enable_interrupts
+global disable_interrupts
 extern kmain                            ; kmain is defined in kmain.cpp
 extern print_byte
 extern print_bytes
@@ -45,33 +50,55 @@ idtr: DW 0xFEED
 set_lidt:
     mov eax, [esp+4]
     mov [idtr+2], eax
-    mov eax, [esp+8]
-    mov [idtr], eax
+    mov ax, [esp+8]
+    mov [idtr], ax
     lidt [idtr]
     ret
 set_gdt:
     mov eax, [esp+4]
     mov [gdtr+2], eax
-    mov eax, [esp+8]
-    mov [gdtr], eax
-    xchg bx, bx
+    mov ax, [esp+8]
+    mov [gdtr], ax
     lgdt [gdtr]
     jmp 0x08:flush_segments
-
+    ret
+enable_interrupts:
+    sti
+    ret
+disable_interrupts:
+    cli
+    ret
+set_imask:
+    
+    mov al, 0b00010010
+    out 0x20, al
+    ret 
 flush_segments:
     mov ax, 0x10
-    mov dx, ax
+    mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
     ret
-simple_isr:
+kb_isr:
+    cli
     pushad
+    push byte 1
     call interrupt_handler
+    sub esp, 1
     popad
     iret
-
+serial_isr:
+    cli
+    pushad
+    push byte 4
+    call interrupt_handler
+    sub esp, 1
+    popad
+    iret
+init_pic:
+    ret
 section .bss
 
 align 4

@@ -19,9 +19,18 @@ typedef struct IDTDescr{
    uint16_t offset_2; // offset bits 16..31
 } IDTEntry;
 IDTEntry interrupt_list[16];
+/*
 extern void (*simple_isr)(void);
 extern void (*set_lidt)(void*, short);
 extern void (*set_gdt)(void*, short);
+*/
+extern void set_imask(void);
+extern void enable_interrupts(void);
+extern void disable_interrupts(void);
+extern void kb_isr(void);
+extern void serial_isr(void);
+extern void set_lidt(void*, short);
+extern void set_gdt(void*, short);
 #define VIDEORAM ((unsigned char*)0xb8000)
 volatile struct DISPLAY_STATE {
     unsigned short rows, columns;
@@ -112,8 +121,10 @@ void display_init(void* mbd, unsigned int magic)
     state.cur_column = 0;
     state.vidram = VIDEORAM;
 }
-void interrupt_handler(void)
-{
+void interrupt_handler(char irq)
+{   
+    print("Fucking interrupts, how do they work? Received interrupt: ");
+    print_byte(irq); print("\n");
     return;
 }
 void split_addr(void* addr, uint16_t* top, uint16_t* bottom)
@@ -126,7 +137,6 @@ void interrupt_init(void)
 {
     int i;
     uint16_t offset_top, offset_bottom;
-    split_addr(simple_isr, &offset_top, &offset_bottom);
     /* Zero out the interrupt table. */
     for (i=0; i<16; i++)
     {
@@ -136,12 +146,16 @@ void interrupt_init(void)
         interrupt_list[i].zero = 0;
         interrupt_list[i].type_attr = 0;
     }
+    split_addr(kb_isr, &offset_top, &offset_bottom);
     interrupt_list[1].offset_1 = offset_bottom;
     interrupt_list[1].offset_2 = offset_top;
     interrupt_list[1].selector = 0x10;
     interrupt_list[1].zero = 0;
     interrupt_list[1].type_attr = 0b10001110;
-    interrupt_list[4] = interrupt_list[0] = interrupt_list[1];
+    interrupt_list[4] = interrupt_list[1];
+    split_addr(serial_isr, &offset_top, &offset_bottom);
+    interrupt_list[4].offset_1 = offset_bottom;
+    interrupt_list[4].offset_2 = offset_top;
     return;
 }
 void kmain( void* mbd, unsigned int magic )
@@ -156,11 +170,11 @@ void kmain( void* mbd, unsigned int magic )
         print_bytes_big(gdt+i, sizeof(gdt[i]));
     }
     interrupt_init();
-    set_lidt(interrupt_list, 16);
-    set_gdt(gdt, 5);
-    print_bytes_big(interrupt_list+1, sizeof(IDTEntry)); print("\n");
-    print_bytes_big(interrupt_list+4, sizeof(IDTEntry)); print("\n");
+    set_gdt(gdt, 4*8+1);
+    set_lidt(interrupt_list, 16*sizeof(IDTEntry));
+    set_imask();
     print("\nWe made it here without exploding.\n");
+    enable_interrupts();
     /* Print a letter to screen to see everything is working: */
     return;
 }

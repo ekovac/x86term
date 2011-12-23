@@ -2,6 +2,8 @@ global loader                           ; making entry point visible to linker
 extern gdt
 extern interrupt_handler
 global set_gdt
+global set_lidt;
+global simple_isr 
 extern kmain                            ; kmain is defined in kmain.cpp
 extern print_byte
 extern print_bytes
@@ -36,18 +38,25 @@ loader:
     hlt                                 ; halt machine should kernel return
     jmp  .hang
 
-gdtr DW 0
-     DD 0
-idtr DW 0
-     DD 0
-set_gdt:
+gdtr: DW 0xFEED
+     DD 0xDEADBEEF
+idtr: DW 0xFEED
+     DD 0xDEADBEEF
+set_lidt:
+    mov eax, [esp+4]
+    mov [idtr+2], eax
     mov eax, [esp+8]
+    mov [idtr], eax
+    lidt [idtr]
+    ret
+set_gdt:
+    mov eax, [esp+4]
     mov [gdtr+2], eax
-    mov eax, [esp+12]
+    mov eax, [esp+8]
     mov [gdtr], eax
+    xchg bx, bx
     lgdt [gdtr]
     jmp 0x08:flush_segments
-    ret
 
 flush_segments:
     mov ax, 0x10
@@ -61,6 +70,7 @@ simple_isr:
     pushad
     call interrupt_handler
     popad
+    iret
 
 section .bss
 

@@ -1,7 +1,7 @@
 CC=gcc
 LD=ld
 AS=nasm
-CC_OPTS=-c -m32 -Wall -Wextra -nostdlib -fno-builtin -nodefaultlibs
+CC_OPTS=-g -c -m32 -Wall -Wextra -nostdlib -fno-builtin -nodefaultlibs
 LD_OPTS=-melf_i386 
 AS_OPTS=-f elf32
 GRUB_URL=ftp://alpha.gnu.org/gnu/grub/grub-0.97-i386-pc.tar.gz
@@ -17,7 +17,7 @@ loader.o: loader.s
 x86term.o: x86term.c
 	$(CC) $(CC_OPTS) -o $@ x86term.c
 x86term: loader.o x86term.o
-	$(LD) $(LD_OPTS) -T linker.ld -o $@ $?
+	$(LD) $(LD_OPTS) -T linker.ld -o $@ loader.o x86term.o
 test: x86term
 	qemu -kernel $?
 floppy.img: x86term stage1
@@ -26,4 +26,6 @@ floppy.img: x86term stage1
 	cat x86term >> floppy.img.tmp
 	mv floppy.img.tmp floppy.img
 floppytest: floppy.img
-	bochs -q 'boot:a' 'floppya: 1_44=floppy.img, status=inserted' 'display_library: sdl' 'error: action=fatal'
+	bochs -qf bochs.cfg
+debug: floppy.img
+	bochs -qf bochs.cfg 'magic_break: enabled=1'

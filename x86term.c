@@ -8,6 +8,7 @@ static unsigned long long gdt[5] = {
 0x00CF92000000FFFF,
 0x00CFFA000000FFFF,
 0x00CFF2000000FFFF};
+typedef unsigned long uint32_t;
 typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
 typedef struct IDTDescr{
@@ -18,8 +19,9 @@ typedef struct IDTDescr{
    uint16_t offset_2; // offset bits 16..31
 } IDTEntry;
 IDTEntry interrupt_list[16];
-extern void (*set_lidt)(void*, int);
-extern void (*set_gdt)(void*, int);
+extern void (*simple_isr)(void);
+extern void (*set_lidt)(void*, short);
+extern void (*set_gdt)(void*, short);
 #define VIDEORAM ((unsigned char*)0xb8000)
 volatile struct DISPLAY_STATE {
     unsigned short rows, columns;
@@ -114,6 +116,34 @@ void interrupt_handler(void)
 {
     return;
 }
+void split_addr(void* addr, uint16_t* top, uint16_t* bottom)
+{
+    *bottom = ((long)addr & 0x0000FFFF);
+    *top = ((long)addr & 0xFFFF0000) >> 16;
+    return;
+}
+void interrupt_init(void)
+{
+    int i;
+    uint16_t offset_top, offset_bottom;
+    split_addr(simple_isr, &offset_top, &offset_bottom);
+    /* Zero out the interrupt table. */
+    for (i=0; i<16; i++)
+    {
+        interrupt_list[i].offset_1 = 0;
+        interrupt_list[i].offset_2 = 0;
+        interrupt_list[i].selector = 0;
+        interrupt_list[i].zero = 0;
+        interrupt_list[i].type_attr = 0;
+    }
+    interrupt_list[1].offset_1 = offset_bottom;
+    interrupt_list[1].offset_2 = offset_top;
+    interrupt_list[1].selector = 0x10;
+    interrupt_list[1].zero = 0;
+    interrupt_list[1].type_attr = 0b10001110;
+    interrupt_list[4] = interrupt_list[0] = interrupt_list[1];
+    return;
+}
 void kmain( void* mbd, unsigned int magic )
 {
     int i;
@@ -125,8 +155,13 @@ void kmain( void* mbd, unsigned int magic )
         print("\n");
         print_bytes_big(gdt+i, sizeof(gdt[i]));
     }
+    interrupt_init();
+    set_lidt(interrupt_list, 16);
     set_gdt(gdt, 5);
+    print_bytes_big(interrupt_list+1, sizeof(IDTEntry)); print("\n");
+    print_bytes_big(interrupt_list+4, sizeof(IDTEntry)); print("\n");
     print("\nWe made it here without exploding.\n");
     /* Print a letter to screen to see everything is working: */
+    return;
 }
 

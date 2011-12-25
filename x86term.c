@@ -1,3 +1,5 @@
+#include "pic.h"
+#include "types.h"
 typedef struct {
     unsigned char data;
     unsigned char attr;
@@ -8,9 +10,6 @@ static unsigned long long gdt[5] = {
 0x00CF92000000FFFF,
 0x00CFFA000000FFFF,
 0x00CFF2000000FFFF};
-typedef unsigned long uint32_t;
-typedef unsigned short uint16_t;
-typedef unsigned char uint8_t;
 typedef struct IDTDescr{
    uint16_t offset_1; // offset bits 0..15
    uint16_t selector; // a code segment selector in GDT or LDT
@@ -24,7 +23,6 @@ extern void (*simple_isr)(void);
 extern void (*set_lidt)(void*, short);
 extern void (*set_gdt)(void*, short);
 */
-extern void set_imask(void);
 extern void enable_interrupts(void);
 extern void disable_interrupts(void);
 extern void kb_isr(void);
@@ -172,9 +170,16 @@ void kmain( void* mbd, unsigned int magic )
     interrupt_init();
     set_gdt(gdt, 4*8+1);
     set_lidt(interrupt_list, 16*sizeof(IDTEntry));
-    set_imask();
+    PIC_remap(0x20, 0x28);
+    for (i=0; i<8; i++) IRQ_set_mask(i);
+    IRQ_clear_mask(1);
+    IRQ_clear_mask(4);
     print("\nWe made it here without exploding.\n");
     enable_interrupts();
+    while (1)
+    {
+        asm("xchg %eax, %eax");    
+    } 
     /* Print a letter to screen to see everything is working: */
     return;
 }

@@ -68,11 +68,6 @@ enable_interrupts:
 disable_interrupts:
     cli
     ret
-set_imask:
-    
-    mov al, 0b00010010
-    out 0x20, al
-    ret 
 flush_segments:
     mov ax, 0x10
     mov ds, ax
@@ -88,6 +83,7 @@ kb_isr:
     call interrupt_handler
     sub esp, 1
     popad
+    sti
     iret
 serial_isr:
     cli
@@ -96,9 +92,8 @@ serial_isr:
     call interrupt_handler
     sub esp, 1
     popad
+    sti
     iret
-init_pic:
-    ret
 section .bss
 
 align 4

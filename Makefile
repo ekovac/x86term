@@ -23,7 +23,7 @@ x86term.o: x86term.c
 x86term: loader.o x86term.o pic.o iobase.o
 	$(LD) $(LD_OPTS) -T linker.ld -o $@ loader.o pic.o iobase.o x86term.o
 test: x86term
-	qemu -kernel $?
+	qemu -serial stdio -kernel $?
 floppy.img: x86term stage1
 	cat stage1 stage2 > floppy.img.tmp
 	dd if=/dev/zero conv=notrunc oflag=append of=floppy.img.tmp bs=1 count=750

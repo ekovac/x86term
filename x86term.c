@@ -10,19 +10,22 @@ static unsigned long long gdt[5] = {
 0x00CF92000000FFFF,
 0x00CFFA000000FFFF,
 0x00CFF2000000FFFF};
-typedef struct IDTDescr{
+
+struct IDTDescr{
    uint16_t offset_1; // offset bits 0..15
    uint16_t selector; // a code segment selector in GDT or LDT
    uint8_t zero;      // unused, set to 0
    uint8_t type_attr; // type and attributes, see below
    uint16_t offset_2; // offset bits 16..31
-} IDTEntry;
-IDTEntry interrupt_list[16];
+} __attribute__((packed));
+typedef struct IDTDescr IDTEntry;
+IDTEntry interrupt_list[256];
 /*
 extern void (*simple_isr)(void);
 extern void (*set_lidt)(void*, short);
 extern void (*set_gdt)(void*, short);
 */
+extern void dontcare_isr(void);
 extern void enable_interrupts(void);
 extern void disable_interrupts(void);
 extern void kb_isr(void);
@@ -53,6 +56,12 @@ void term_erase(unsigned char x1, unsigned char y1, unsigned char width, unsigne
     for (y = y1; y <= y1+height; y++)
         term_putchar(x,y, 0x00, 0x07);
     return;
+}
+void term_clear()
+{
+    term_erase(0,0,state.columns, state.rows);
+    state.cur_row = 0;
+    state.cur_column = 0;
 }
 void print(char* str)
 {
@@ -119,10 +128,36 @@ void display_init(void* mbd, unsigned int magic)
     state.cur_column = 0;
     state.vidram = VIDEORAM;
 }
+#define PORT 0x3F8
+void serial_init()
+{
+   outb(PORT + 1, 0x00);    // Disable all interrupts
+   outb(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
+   outb(PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
+   outb(PORT + 1, 0x00);    //                  (hi byte)
+   outb(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
+   outb(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
+   outb(PORT + 4, 0x0B);    // RTS/DSR set    
+   outb(PORT + 1, 0x01);    // Enable interrupts
+}
 void interrupt_handler(char irq)
 {   
-    print("Fucking interrupts, how do they work? Received interrupt: ");
+    term_clear();
+    print("Received interrupt: ");
     print_byte(irq); print("\n");
+    if (irq == 1)
+    {
+        print("Read byte: ");
+        print_byte(inb(0x60));
+        print("\n");
+    }
+    if (irq == 4)
+    {
+        print("Read serial byte: ");
+        print_byte(inb(PORT));
+        print("\n");
+    }
+    outb(0x20, 0x20);
     return;
 }
 void split_addr(void* addr, uint16_t* top, uint16_t* bottom)
@@ -136,24 +171,29 @@ void interrupt_init(void)
     int i;
     uint16_t offset_top, offset_bottom;
     /* Zero out the interrupt table. */
-    for (i=0; i<16; i++)
+    split_addr(dontcare_isr, &offset_top, &offset_bottom);
+    for (i=0; i<32; i++)
     {
-        interrupt_list[i].offset_1 = 0;
-        interrupt_list[i].offset_2 = 0;
-        interrupt_list[i].selector = 0;
+        interrupt_list[i].offset_1 = offset_bottom;
+        interrupt_list[i].offset_2 = offset_top;
+        interrupt_list[i].selector = 0x08;
         interrupt_list[i].zero = 0;
-        interrupt_list[i].type_attr = 0;
+        interrupt_list[i].type_attr = 0x8E; 
+    }
+    for (i=32; i<256; i++)
+    {
+        interrupt_list[i].type_attr = 0x00;
     }
     split_addr(kb_isr, &offset_top, &offset_bottom);
-    interrupt_list[1].offset_1 = offset_bottom;
-    interrupt_list[1].offset_2 = offset_top;
-    interrupt_list[1].selector = 0x10;
-    interrupt_list[1].zero = 0;
-    interrupt_list[1].type_attr = 0b10001110;
-    interrupt_list[4] = interrupt_list[1];
+    interrupt_list[0x21].offset_1 = offset_bottom;
+    interrupt_list[0x21].offset_2 = offset_top;
+    interrupt_list[0x21].selector = 0x08;
+    interrupt_list[0x21].zero = 0;
+    interrupt_list[0x21].type_attr = 0b10001110;
+    interrupt_list[0x24] = interrupt_list[1];
     split_addr(serial_isr, &offset_top, &offset_bottom);
-    interrupt_list[4].offset_1 = offset_bottom;
-    interrupt_list[4].offset_2 = offset_top;
+    interrupt_list[0x24].offset_1 = offset_bottom;
+    interrupt_list[0x24].offset_2 = offset_top;
     return;
 }
 void kmain( void* mbd, unsigned int magic )
@@ -162,14 +202,10 @@ void kmain( void* mbd, unsigned int magic )
     display_init(mbd, magic);
     term_erase(0, 0, state.columns, state.rows);
     print("Hello World!\nThis is my first operating system.\n");
-    for (i=0; i<5; i++)
-    {
-        print("\n");
-        print_bytes_big(gdt+i, sizeof(gdt[i]));
-    }
+    serial_init();
     interrupt_init();
     set_gdt(gdt, 4*8+1);
-    set_lidt(interrupt_list, 16*sizeof(IDTEntry));
+    set_lidt(interrupt_list, 256*sizeof(IDTEntry));
     PIC_remap(0x20, 0x28);
     for (i=0; i<8; i++) IRQ_set_mask(i);
     IRQ_clear_mask(1);

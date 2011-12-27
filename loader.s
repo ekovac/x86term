@@ -7,6 +7,7 @@ global set_gdt
 global set_lidt
 global kb_isr
 global serial_isr 
+global dontcare_isr
 global enable_interrupts
 global disable_interrupts
 extern kmain                            ; kmain is defined in kmain.cpp
@@ -81,7 +82,7 @@ kb_isr:
     pushad
     push byte 1
     call interrupt_handler
-    sub esp, 1
+    add esp, 4
     popad
     sti
     iret
@@ -90,8 +91,12 @@ serial_isr:
     pushad
     push byte 4
     call interrupt_handler
-    sub esp, 1
+    add esp, 4
     popad
+    sti
+    iret
+dontcare_isr:
+    cli
     sti
     iret
 section .bss

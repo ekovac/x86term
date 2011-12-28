@@ -12,6 +12,8 @@ stage1:
 	wget -qO - $(GRUB_URL) | tar zx grub-0.97-i386-pc/boot/grub/stage1 grub-0.97-i386-pc/boot/grub/stage2 --strip-components 3
 clean:
 	rm -f *.o *.bin *.img x86term
+keys.o: keys.c keys.h
+	$(CC) $(CC_OPTS) -o $@ keys.c
 pic.o: pic.h pic.c
 	$(CC) $(CC_OPTS) -o $@ pic.c
 iobase.o: iobase.h iobase.c
@@ -20,8 +22,8 @@ loader.o: loader.s
 	$(AS) $(AS_OPTS) -o $@ $?
 x86term.o: x86term.c
 	$(CC) $(CC_OPTS) -o $@ x86term.c
-x86term: loader.o x86term.o pic.o iobase.o
-	$(LD) $(LD_OPTS) -T linker.ld -o $@ loader.o pic.o iobase.o x86term.o
+x86term: loader.o x86term.o pic.o iobase.o keys.o
+	$(LD) $(LD_OPTS) -T linker.ld -o $@ loader.o pic.o iobase.o keys.o x86term.o 
 test: x86term
 	qemu -serial stdio -kernel $?
 floppy.img: x86term stage1

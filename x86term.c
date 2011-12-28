@@ -1,5 +1,6 @@
 #include "pic.h"
 #include "types.h"
+#include "keys.h"
 typedef struct {
     unsigned char data;
     unsigned char attr;
@@ -38,6 +39,9 @@ volatile struct DISPLAY_STATE {
     unsigned short cur_row, cur_column;
     volatile unsigned char* vidram;
 } state;
+volatile struct KB_STATE {
+    char mods;
+} kb_state;
 void term_putchar(unsigned char x, unsigned char y, unsigned char c, unsigned char attr)
 {
     state.vidram[y*state.columns*2+x*2] = c;
@@ -133,23 +137,75 @@ void serial_init()
 {
    outb(PORT + 1, 0x00);    // Disable all interrupts
    outb(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
-   outb(PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
+   outb(PORT + 0, 0x0C);    // Set divisor to 12 (lo byte,) 9600 baud
    outb(PORT + 1, 0x00);    //                  (hi byte)
    outb(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
    outb(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
    outb(PORT + 4, 0x0B);    // RTS/DSR set    
    outb(PORT + 1, 0x01);    // Enable interrupts
 }
+char xlate_scans(char byte)
+{
+    char up;
+    char key;
+    up = byte & 0x80;
+    key = byte & ~0x80;
+    /* Handle modifiers */
+    if (key == 0x2A || key == 0x36)
+    {
+        if (!up)
+            kb_state.mods |= 0x01;
+        else
+            kb_state.mods &= ~0x01;
+        return 0x00;
+    }
+    else if (key == 0x1D)
+    {
+        if (!up)
+            kb_state.mods |= 0x02;
+        else
+            kb_state.mods &= ~0x02;
+        return 0x00;
+    }
+    else if (key == 0x38)
+    {
+        if (!up)
+            kb_state.mods |= 0x04;
+        else
+            kb_state.mods &= ~0x04;
+        return 0x00;
+    }
+    else /* It's a single-strike key. */
+    {
+        return scan2byte(key, kb_state.mods);
+    }
+}
+void print_mods()
+{
+    if (kb_state.mods & 0x01)
+        print(" [SHIFT] ");
+    if (kb_state.mods & 0x02)
+        print(" [CTRL] ");
+    if (kb_state.mods & 0x04)
+        print(" [ALT] ");
+}
 void interrupt_handler(char irq)
 {   
     term_clear();
+    char inval;
+    char fmt[4] = {'\'', '\0', '\'', '\0'};
     print("Received interrupt: ");
     print_byte(irq); print("\n");
     if (irq == 1)
     {
-        print("Read byte: ");
-        print_byte(inb(0x60));
+        print("Read KB byte: ");
+        inval = inb(0x60);
+        print_byte(inval); print("\n");
+        fmt[1] = xlate_scans(inval);
+        print(fmt); 
         print("\n");
+        print_mods();
+        
     }
     if (irq == 4)
     {
@@ -199,6 +255,7 @@ void interrupt_init(void)
 void kmain( void* mbd, unsigned int magic )
 {
     int i;
+    kb_state.mods = 0;
     display_init(mbd, magic);
     term_erase(0, 0, state.columns, state.rows);
     print("Hello World!\nThis is my first operating system.\n");

@@ -1,7 +1,7 @@
 
 #ifndef X86TERM_SEGMENTS_H
 #define X86TERM_SEGMENTS_H
-#include "types.h"
+#include "stdint.h"
 
 /* Significant portions of this code borrowed from the tutorial at: http://www.jamesmolloy.co.uk/tutorial_html/4.-The%20GDT%20and%20IDT.html */
 

@@ -1,6 +1,6 @@
 #ifndef X86TERM_INTERRUPTS_H
 #define X86TERM_INTERRUPTS_H
-#include "types.h"
+#include "stdint.h"
 struct idt_entry_struct
 {
     uint16_t base_lo;             // The lower 16 bits of the address to jump to when this interrupt fires.

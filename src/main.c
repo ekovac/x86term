@@ -4,7 +4,7 @@
 #include "pic.h"
 #include "serial.h"
 #include "keys.h"
-void kb_handler(char b)
+void kb_handler(void)
 {
     char inval;
     inval = inb(0x60);
@@ -12,7 +12,7 @@ void kb_handler(char b)
     outb(0x20, 0x20);
     return;
 }
-void serial_handler(char b)
+void serial_handler(void)
 {
     char inval;
     inval = inb(COM1);

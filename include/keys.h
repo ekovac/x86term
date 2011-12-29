@@ -1,6 +1,6 @@
 #ifndef KEYS_H
 #define KEYS_H
-#include "types.h"
+#include "stdint.h"
 typedef struct KBSTATE_T {
     /* Not a lot here yet, but it'll get more interesting when I start paying attention to the clock and keyrepeat */
     char mods;

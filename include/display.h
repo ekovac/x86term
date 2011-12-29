@@ -1,7 +1,7 @@
 #ifndef X86TERM_DISPLAY_H
 #define X86TERM_DISPLAY_H
 
-#include "types.h"
+#include "stdint.h"
 typedef struct VIDEO_CELL {
     uint8_t data;
     uint8_t attr;

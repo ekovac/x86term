@@ -1,12 +1,13 @@
 global kb_isr
 global serial_isr
-extern interrupt_handler
+extern kb_handler
+extern serial_handler
 
 kb_isr:
     cli
     pushad
     push byte 1
-    call interrupt_handler
+    call kb_handler
     add esp, 4
     popad
     sti
@@ -15,7 +16,7 @@ serial_isr:
     cli
     pushad
     push byte 4
-    call interrupt_handler
+    call serial_handler
     add esp, 4
     popad
     sti

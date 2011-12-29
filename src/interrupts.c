@@ -13,7 +13,7 @@ void init_idt(void)
     memset(&idt_entries, 0, sizeof(idt_entry_t)*256);
 
     idt_set_gate(0x21, (uint32_t)kb_isr, 0x08, 0x8E);
-    idt_set_gate(0x25, (uint32_t)serial_isr, 0x08, 0x8E);
+    idt_set_gate(0x24, (uint32_t)serial_isr, 0x08, 0x8E);
 
     idt_flush((uint32_t)&idt_ptr);
     return;

@@ -5,7 +5,7 @@ CC_OPTS=-g -c -m32 -Wall -Wextra -nostdlib -fno-builtin -nodefaultlibs -Iinclude
 LD_OPTS=-melf_i386 
 AS_OPTS=-f elf32
 GRUB_URL=ftp://alpha.gnu.org/gnu/grub/grub-0.97-i386-pc.tar.gz
-OBJECTS=obj/loader.o obj/base.o obj/display.o obj/interrupt_handlers.o obj/interrupts.o obj/keys.o obj/pic.o obj/main.o obj/segments.o obj/tables.o
+OBJECTS=obj/loader.o obj/base.o obj/display.o obj/interrupt_handlers.o obj/interrupts.o obj/keys.o obj/pic.o obj/main.o obj/segments.o obj/tables.o obj/serial.o 
 # Bootstrap code taken from wiki.osdev.org/Bare_bones
 all: x86term
 floppy: floppy.img

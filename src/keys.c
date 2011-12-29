@@ -1,3 +1,4 @@
+#include "keys.h"
 /* Ganked from http://minirighi.sourceforge.net/html/group__KeyboardDriver.html */
 static int lcase[128] = 
 {
@@ -17,6 +18,7 @@ static int ucase[128] =
   0x5900,0x5A00,0x5B00,0x5C00,0x5D00,0x4500,0x4600,0x4700,0x4800,0x4900,0x4A2D,0x4B00,0x4C00,0x4D00,0x4E2B,0x4F00,
   0x5000,0x5100,0x5200,0x5300,0x5400,0x5500,0x5600,0x8700,0x8800,0x0000,0x0000,0x5B00,0x5C00,0x5D00
 };
+kbstate_t keyboard;
 char scan2byte(char code, char mods)
 {
     if (mods & 0x01)
@@ -24,3 +26,44 @@ char scan2byte(char code, char mods)
     else
         return (char)(lcase[code] & 0xFF);
 }
+char handle_keypress(char byte)
+{
+    char up;
+    char key;
+    up = byte & 0x80;
+    key = byte & ~0x80;
+    /* Handle modifiers */
+    if (key == 0x2A || key == 0x36)
+    {
+        if (!up)
+            keyboard.mods |= 0x01;
+        else
+            keyboard.mods &= ~0x01;
+        return 0x00;
+    }
+    else if (key == 0x1D)
+    {
+        if (!up)
+            keyboard.mods |= 0x02;
+        else
+            keyboard.mods &= ~0x02;
+        return 0x00;
+    }
+    else if (key == 0x38)
+    {
+        if (!up)
+            keyboard.mods |= 0x04;
+        else
+            keyboard.mods &= ~0x04;
+        return 0x00;
+    }
+    else if (!up) /* It's a single-strike key. */
+    {
+        return scan2byte(key, keyboard.mods);
+    }
+    else
+    {
+        return 0x00;
+    }
+}
+

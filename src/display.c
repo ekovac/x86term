@@ -24,6 +24,8 @@ void display_erase(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
         return;
 
     for (i = x1; i < x2; i++) for (j = y1; j < y2; j++) VIDEOAT(i,j) = cell;
+    disp.cursor_x = 0;
+    disp.cursor_y = 0;
     return;
 }
 

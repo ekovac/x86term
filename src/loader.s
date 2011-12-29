@@ -1,18 +1,5 @@
 global loader                           ; making entry point visible to linker
-extern gdt
-extern interrupt_handler
-global init_pic
-global set_imask
-global set_gdt
-global set_lidt
-global kb_isr
-global serial_isr 
-global dontcare_isr
-global enable_interrupts
-global disable_interrupts
 extern kmain                            ; kmain is defined in kmain.cpp
-extern print_byte
-extern print_bytes
 BITS 32
 ; setting up the Multiboot header - see GRUB docs for details
 MODULEALIGN equ  1<<0                   ; align loaded modules on page boundaries
@@ -44,61 +31,6 @@ loader:
     hlt                                 ; halt machine should kernel return
     jmp  .hang
 
-gdtr: DW 0xFEED
-     DD 0xDEADBEEF
-idtr: DW 0xFEED
-     DD 0xDEADBEEF
-set_lidt:
-    mov eax, [esp+4]
-    mov [idtr+2], eax
-    mov ax, [esp+8]
-    mov [idtr], ax
-    lidt [idtr]
-    ret
-set_gdt:
-    mov eax, [esp+4]
-    mov [gdtr+2], eax
-    mov ax, [esp+8]
-    mov [gdtr], ax
-    lgdt [gdtr]
-    jmp 0x08:flush_segments
-    ret
-enable_interrupts:
-    sti
-    ret
-disable_interrupts:
-    cli
-    ret
-flush_segments:
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    ret
-kb_isr:
-    cli
-    pushad
-    push byte 1
-    call interrupt_handler
-    add esp, 4
-    popad
-    sti
-    iret
-serial_isr:
-    cli
-    pushad
-    push byte 4
-    call interrupt_handler
-    add esp, 4
-    popad
-    sti
-    iret
-dontcare_isr:
-    cli
-    sti
-    iret
 section .bss
 
 align 4

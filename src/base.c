@@ -1,5 +1,13 @@
 /* All ganked from OSDEV */
-#include "iobase.h"
+#include "base.h"
+void* memset(void* s, int c, size_t n)
+{
+    char* sp = (char*)s;
+    int i;
+    /* TODO Optimize */
+    for (i = 0; i < n; i++)
+        sp[i] = (char)c;
+}
 inline void outb( unsigned short port, unsigned char val )
 {
     asm volatile( "outb %0, %1"

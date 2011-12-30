@@ -69,7 +69,7 @@ void init_vterm(void)
     vtsc.resize = NULL;
 
     vterm_screen_set_callbacks(vscreen, &vtsc, NULL);
-
+    vterm_screen_reset(vscreen);
     ringbuf_init(&serial_inbuf);
     ringbuf_init(&serial_outbuf);
     ringbuf_init(&kb_inbuf);

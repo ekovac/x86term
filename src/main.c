@@ -38,6 +38,7 @@ void kmain(void* mbd, unsigned int magic)
     init_gdt();
     init_idt();
     PIC_remap(0x20, 0x28);
+    init_vterm(80, 25);
     for (i=0; i<8; i++) IRQ_set_mask(i);
     IRQ_clear_mask(1);
     IRQ_clear_mask(4);

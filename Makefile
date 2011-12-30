@@ -1,11 +1,14 @@
 CC=gcc
 LD=ld
 AS=nasm
-CC_OPTS=-g -c -m32 -Wall -Wextra -nostdlib -fno-builtin -nodefaultlibs -Iinclude/
-LD_OPTS=-melf_i386 
-AS_OPTS=-f elf32
+LDFLAGS=-melf_i386 
+ASFLAGS=-f elf32
 GRUB_URL=ftp://alpha.gnu.org/gnu/grub/grub-0.97-i386-pc.tar.gz
-OBJECTS=obj/loader.o obj/base.o obj/display.o obj/interrupt_handlers.o obj/interrupts.o obj/keys.o obj/pic.o obj/main.o obj/segments.o obj/tables.o obj/serial.o obj/stub.o
+LIBVTERM=../libvterm/
+CFLAGS=-g -std=c99 -c -m32 -Wall -Wextra -nostdlib -fno-builtin -nodefaultlibs -Iinclude/ -I$(LIBVTERM)/include/
+VTERMCFILES=$(wildcard $(LIBVTERM)/src/*.c)
+VTERMOFILES=$(VTERMCFILES:.c=.o)
+OBJECTS=obj/loader.o obj/base.o obj/display.o obj/interrupt_handlers.o obj/interrupts.o obj/keys.o obj/pic.o obj/main.o obj/segments.o obj/tables.o obj/serial.o obj/stub.o obj/ringbuf.o obj/termhandlers.o
 # Bootstrap code taken from wiki.osdev.org/Bare_bones
 all: x86term
 floppy: floppy.img
@@ -14,15 +17,19 @@ stage1:
 clean:
 	rm -f obj/*.o *.bin *.img x86term
 obj/interrupt_handlers.o: src/interrupt_handlers.s
-	$(AS) $(AS_OPTS) $?  -o $@
+	$(AS) $(ASFLAGS) $?  -o $@
 obj/loader.o: src/loader.s
-	$(AS) $(AS_OPTS) $? -o $@
+	$(AS) $(ASFLAGS) $? -o $@
 obj/tables.o: src/tables.s
-	$(AS) $(AS_OPTS) $? -o $@
+	$(AS) $(ASFLAGS) $? -o $@
+$(LIBVTERM)/src/%.o: $(LIBVTERM)/src/%.c
+	$(CC) $(CFLAGS) $? -o $@
+obj/vterm.o: $(VTERMOFILES)
+	$(LD) -r $(LDFLAGS) $^ -o $@
 obj/%.o: src/%.c
-	$(CC) $(CC_OPTS) -o $@ $?
-x86term: $(OBJECTS)
-	$(LD) $(LD_OPTS) -T linker.ld -o $@ $(OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $?
+x86term: $(OBJECTS) obj/vterm.o
+	$(LD) $(LDFLAGS) -T linker.ld -o $@ $^
 test: x86term
 	qemu -serial stdio -kernel $?
 floppy.img: x86term stage1

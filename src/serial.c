@@ -8,7 +8,6 @@ void serial_set_baud(short rate)
     outb(COM1+0, divisor & 0x00FF);
     outb(COM1+1, (divisor & 0xFF00) >> 8);
     outb(COM1+3, 0x03);
-    outb(COM1+1, 0x01);
     return;
 }
 void serial_reset(void)
@@ -18,7 +17,18 @@ void serial_reset(void)
     outb(COM1+2, 0xC7);
     outb(COM1+4, 0x00);
     outb(COM1+4, 0x0B);
-    outb(COM1+1, 0x01);
+}
+void serial_txint(char c)
+{
+    c = (c && c) << 1; 
+    c = c | (inb(COM1+1) & ~0x02);
+    outb(COM1+1, c);
+}
+void serial_rxint(char c)
+{
+    c = (c && c);
+    c = c | (inb(COM1+1) & ~0x01);
+    outb(COM1+1, c);
 }
 void serial_putc(char c)
 {

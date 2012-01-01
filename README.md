@@ -4,7 +4,7 @@ Turning useless PCs into slightly less useless PCs since 2011.
 
 _x86term_ is a terminal emulator that runs without the benefit of an operating system for ease of use and deployment on legacy computers too old to run even the most modest of Linux distros. If you've ever wanted the joys of a glass-screen terminal but can't scrounge up a DEC VT on eBay, this is the software package for you.
 
-It's also in part a proof-of-concept for demonstrating the flexibility of Paul Evans' libvterm library, which is a necessary component of this project. More details in the :Credits" section.
+It's also in part a proof-of-concept for demonstrating the flexibility of Paul Evans' libvterm library, which is a necessary component of this project. More details in the "Credits" section.
 
 System Requirements
 -------------------

@@ -27,7 +27,7 @@ obj/tables.o: src/tables.s
 $(LIBVTERM)/src/%.o: $(LIBVTERM)/src/%.c 
 	$(CC) $(CFLAGS) $? -o $@
 $(LIBVTERM)/src/encoding.o: $(LIBVTERM)/src/encoding.c $(INCFILES)
-	
+	$(CC) $(CFLAGS) $? -o $@	
 $(LIBVTERM)/src/encoding/%.inc: $(LIBVTERM)/src/encoding/%.tbl
 	perl -C $(LIBVTERM)/tbl2inc_c.pl $< > $@
 obj/vterm.o: $(VTERMOFILES)

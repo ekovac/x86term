@@ -26,6 +26,8 @@ Inside the _x86term_ directory, you should be able to run `make` and get the bas
 Current Limitations
 -------------------
 
+In short, it's not usable yet. Next TODO item is good robust exception handling to track down problems faster.
+
 Right now, it crashes on real hardware and in Bochs, but runs almost kinda sorta correctly in qemu. We're working on that, since we're not competing to be the most bloated, overly-complex software terminal emulator.
 
 Credit

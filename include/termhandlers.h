@@ -7,5 +7,6 @@ extern ringbuf_t serial_inbuf, serial_outbuf, kb_inbuf;
 extern VTerm* vterm;
 void term_handlescancode(char);
 void term_handleserial(char);
+void init_vterm(void);
 
 #endif

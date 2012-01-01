@@ -10,6 +10,11 @@ void kb_handler(void)
     outb(0x20, 0x20);
     return;
 }
+void exception_handler(void)
+{
+    puts("CPU exception.\n");
+    return;
+}
 void serial_handler(void)
 {
     uint8_t b;
@@ -33,12 +38,12 @@ void kmain(void* mbd, unsigned int magic)
 {
     int i;
     uint8_t data, rdy;
+    init_gdt();
     display_init(80, 25);
     display_clear();
-    init_gdt();
     init_idt();
     PIC_remap(0x20, 0x28);
-    init_vterm(80, 25);
+    init_vterm();
     for (i=0; i<8; i++) IRQ_set_mask(i);
     IRQ_clear_mask(1);
     IRQ_clear_mask(4);

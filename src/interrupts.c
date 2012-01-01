@@ -7,10 +7,12 @@ idt_ptr_t   idt_ptr;
 
 void init_idt(void)
 {
+    int i=0;
     idt_ptr.limit = sizeof(idt_entry_t) * 256 -1;
     idt_ptr.base  = (uint32_t)&idt_entries;
 
-    memset(&idt_entries, 0, sizeof(idt_entry_t)*256);
+    memset(&idt_entries, 0, sizeof(idt_entry_t)*256); 
+    for (i = 0; i < 8; i++) idt_set_gate(i, (uint32_t)cpu_isr, 0x08, 0x8E);
 
     idt_set_gate(0x21, (uint32_t)kb_isr, 0x08, 0x8E);
     idt_set_gate(0x24, (uint32_t)serial_isr, 0x08, 0x8E);

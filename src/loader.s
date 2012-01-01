@@ -1,5 +1,4 @@
 global loader                           ; making entry point visible to linker
-global heapbase                         ; make heap visible
 extern kmain                            ; kmain is defined in kmain.cpp
 BITS 32
 ; setting up the Multiboot header - see GRUB docs for details
@@ -37,5 +36,3 @@ section .bss
 align 4
 stack:
     resb STACKSIZE                      ; reserve 16k stack on a doubleword boundary
-heapbase:
-    resb HEAPSIZE

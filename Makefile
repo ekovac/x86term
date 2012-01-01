@@ -32,10 +32,16 @@ x86term: $(OBJECTS) obj/vterm.o
 	$(LD) $(LDFLAGS) -T linker.ld -o $@ $^
 test: x86term
 	qemu -serial stdio -kernel $?
+debug: x86term
+	qemu -s -S -serial stdio -kernel $?
+floppydebug: floppy.img
+	qemu -s -S -serial stdio -fda floppy.img
 floppy.img: x86term stage1
 	cat stage1 stage2 > floppy.img.tmp
 	dd if=/dev/zero conv=notrunc oflag=append of=floppy.img.tmp bs=1 count=750
 	cat x86term >> floppy.img.tmp
 	mv floppy.img.tmp floppy.img
-floppytest: floppy.img
+bochs: floppy.img
+	bochs -qf bochs.cfg 'gdbstub: enabled=0'
+bochsdebug: floppy.img
 	bochs -qf bochs.cfg

@@ -3,7 +3,7 @@
 #include "stdio.h"
 #include <stdarg.h>
 #define __unused __attribute__((unused))
-extern void* heapbase;
+char heapbase[32768];
 int fprintf(__unused FILE* stream, __unused const char* format, ...)
 {
     return 0;

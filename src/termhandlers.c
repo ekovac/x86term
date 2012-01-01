@@ -60,10 +60,10 @@ void init_vterm(void)
     vterm = vterm_new(disp.height, disp.width);
     vscreen = vterm_obtain_screen(vterm);
 
-    vtsc.damage = term_damage;
-    vtsc.moverect = term_moverect;
-    vtsc.movecursor = term_movecursor;
-    vtsc.settermprop = term_settermprop;
+    vtsc.damage = &term_damage;
+    vtsc.moverect = &term_moverect;
+    vtsc.movecursor = &term_movecursor;
+    vtsc.settermprop = &term_settermprop;
     vtsc.setmousefunc = NULL;
     vtsc.bell = NULL;
     vtsc.resize = NULL;

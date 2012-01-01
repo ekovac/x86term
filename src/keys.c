@@ -1,4 +1,5 @@
 #include "keys.h"
+#include "vterm_input.h"
 /* Ganked from http://minirighi.sourceforge.net/html/group__KeyboardDriver.html */
 static int lcase[128] = 
 {
@@ -22,9 +23,9 @@ kbstate_t keyboard;
 char scan2byte(char code, char mods)
 {
     if (mods & 0x01)
-        return (char)(ucase[code] & 0xFF);
+        return (char)(ucase[(int)code] & 0xFF);
     else
-        return (char)(lcase[code] & 0xFF);
+        return (char)(lcase[(int)code] & 0xFF);
 }
 char handle_keypress(char byte)
 {

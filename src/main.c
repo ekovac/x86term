@@ -1,3 +1,4 @@
+#include "stdlib.h"
 #include "display.h"
 #include "segments.h"
 #include "interrupts.h"
@@ -34,10 +35,10 @@ void serial_handler(void)
     outb(0x20, 0x20); /* Acknowledge interrupt */
     return;
 }
-void kmain(void* mbd, unsigned int magic)
+void kmain(__unused void* mbd, __unused unsigned int magic)
 {
     int i;
-    uint8_t data, rdy;
+    int8_t data, rdy;
     init_gdt();
     display_init(80, 25);
     display_clear();

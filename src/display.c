@@ -24,14 +24,13 @@ void display_erase(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
         return;
 
     for (i = x1; i < x2; i++) for (j = y1; j < y2; j++) VIDEOAT(i,j) = cell;
-    disp.cursor_x = 0;
-    disp.cursor_y = 0;
     return;
 }
 
 void display_clear(void)
 {
     display_erase(0, 0, disp.width, disp.height);
+    display_set_cursor(0,0);
     return;
 }
 
@@ -40,12 +39,18 @@ void display_set_pen(uint8_t attr)
     disp.pen = attr;
     return;
 }
-
 void display_set_cursor(uint8_t x, uint8_t y)
 {
     disp.cursor_x = x;
     disp.cursor_y = y;
     return;
+}
+void display_put(uint8_t col, uint8_t row, uint8_t c, uint8_t attr)
+{
+    video_cell_t cell;
+    cell.data = c;
+    cell.attr = attr;
+    VIDEOAT(col, row) = cell;
 }
 
 void display_set_cell(char c)

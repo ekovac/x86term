@@ -23,7 +23,9 @@ void display_clear(void);
 
 void display_set_pen(uint8_t attr);
 void display_set_cursor(uint8_t x, uint8_t y);
+void display_put(uint8_t col, uint8_t row, uint8_t c, uint8_t attr);
 void display_set_cell(char c);
+void display_hw_cursor(uint8_t x, uint8_t y, uint8_t visible);
 
 void putc(char c);
 void put_byte(uint8_t b);

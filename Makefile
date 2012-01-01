@@ -17,7 +17,7 @@ floppy: floppy.img
 stage1:
 	wget -qO - $(GRUB_URL) | tar zx grub-0.97-i386-pc/boot/grub/stage1 grub-0.97-i386-pc/boot/grub/stage2 --strip-components 3
 clean:
-	rm -f obj/*.o *.bin *.img x86term
+	rm -f obj/*.o *.bin *.img x86term $(LIBVTERM)/src/*.o
 obj/interrupt_handlers.o: src/interrupt_handlers.s
 	$(AS) $(ASFLAGS) $?  -o $@
 obj/loader.o: src/loader.s

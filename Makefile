@@ -8,6 +8,8 @@ LIBVTERM=../libvterm/
 CFLAGS=-g -std=c99 -c -m32 -Wall -Wextra -nostdlib -fno-builtin -nodefaultlibs -Iinclude/ -I$(LIBVTERM)/include/
 VTERMCFILES=$(wildcard $(LIBVTERM)/src/*.c)
 VTERMOFILES=$(VTERMCFILES:.c=.o)
+TBLFILES=$(wildcard $(LIBVTERM)/src/encoding/*.tbl)
+INCFILES=$(TBLFILES:.tbl=.inc)
 OBJECTS=obj/loader.o obj/base.o obj/display.o obj/interrupt_handlers.o obj/interrupts.o obj/keys.o obj/pic.o obj/main.o obj/segments.o obj/tables.o obj/serial.o obj/stub.o obj/ringbuf.o obj/termhandlers.o
 # Bootstrap code taken from wiki.osdev.org/Bare_bones
 all: x86term
@@ -22,8 +24,12 @@ obj/loader.o: src/loader.s
 	$(AS) $(ASFLAGS) $? -o $@
 obj/tables.o: src/tables.s
 	$(AS) $(ASFLAGS) $? -o $@
-$(LIBVTERM)/src/%.o: $(LIBVTERM)/src/%.c
+$(LIBVTERM)/src/%.o: $(LIBVTERM)/src/%.c 
 	$(CC) $(CFLAGS) $? -o $@
+$(LIBVTERM)/src/encoding.o: $(LIBVTERM)/src/encoding.c $(INCFILES)
+	
+$(LIBVTERM)/src/encoding/%.inc: $(LIBVTERM)/src/encoding/%.tbl
+	perl -C $(LIBVTERM)/tbl2inc_c.pl $< > $@
 obj/vterm.o: $(VTERMOFILES)
 	$(LD) -r $(LDFLAGS) $^ -o $@
 obj/%.o: src/%.c

@@ -4,7 +4,7 @@ Turning useless PCs into slightly less useless PCs since 2011.
 
 _x86term_ is a terminal emulator that runs without the benefit of an operating system for ease of use and deployment on legacy computers too old to run even the most modest of Linux distros. If you've ever wanted the joys of a glass-screen terminal but can't scrounge up a DEC VT on eBay, this is the software package for you.
 
-It's also in part a proof-of-concept for demonstrating the flexibility of Paul Evans' libvterm library, which is a necessary component of this project. More details in the 
+It's also in part a proof-of-concept for demonstrating the flexibility of Paul Evans' libvterm library, which is a necessary component of this project. More details in the :Credits" section.
 
 System Requirements
 -------------------
@@ -17,8 +17,7 @@ Binary builds to come once things actually work.
 
 It's highly suggested that you install qemu and/or bochs if you plan to develop for _x86term_.
 
-After cloning a copy of x86term's code, in a sibling directory checkout Paul Evans' libvterm thus:
-     bzr checkout  http://bazaar.leonerd.org.uk/c/libvterm
+After cloning a copy of x86term's code, in a sibling directory checkout Paul Evans' libvterm by running `bzr checkout  http://bazaar.leonerd.org.uk/c/libvterm`.
 It's critical that you not build libvterm using his Makefile, as options need to be passed to prohibit the inclusion of your OS's library files.
 
 Inside the _x86term_ directory, you should be able to run `make` and get the basic kernel ELF image, which is bootable by any multiboot compliant bootloader. `make qemu` will launch a qemu instance using _stdio_ as the serial port and booting the _x86term_ kernel, and provides a handy tool for testing. `make floppy.img` will create an image file which you can (theoretically) write to a floppy disk and use to boot your soon-to-be glass terminal.

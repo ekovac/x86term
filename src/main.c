@@ -11,9 +11,16 @@ void kb_handler(void)
     outb(0x20, 0x20);
     return;
 }
-void exception_handler(void)
+void exception_handler(registers_t regs)
 {
-    puts("CPU exception.\n");
+    static int count = 5;
+    puts("CPU exception: ");
+    put_bytes((uint8_t*)&(regs.int_no), sizeof(int)); puts(" "); 
+    put_bytes((uint8_t*)&(regs.err_code), sizeof(int)); puts("\n");
+    puts("Executing instruction: ");
+    put_bytes((uint8_t*)&regs.eip, sizeof(int)); puts("\n");
+    count--;
+    while (count == 0){};
     return;
 }
 void serial_handler(void)
@@ -45,7 +52,7 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     init_idt();
     PIC_remap(0x20, 0x28);
     init_vterm();
-    for (i=0; i<8; i++) IRQ_set_mask(i);
+    for (i=0; i<9; i++) IRQ_set_mask(i);
     IRQ_clear_mask(1);
     IRQ_clear_mask(4);
     serial_set_baud(9600);

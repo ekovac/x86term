@@ -10,6 +10,12 @@ struct idt_entry_struct
     uint16_t base_hi;             // The upper 16 bits of the address to jump to.
 } __attribute__((packed));
 typedef struct idt_entry_struct idt_entry_t;
+typedef struct registers
+{
+   uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
+   uint32_t int_no, err_code;    // Interrupt number and error code (if applicable)
+   uint32_t eip, cs, eflags, useresp, ss; // Pushed by the processor automatically.
+} registers_t;
 
 // A struct describing a pointer to an array of interrupt handlers.
 // This is in a format suitable for giving to 'lidt'.

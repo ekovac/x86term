@@ -13,6 +13,7 @@ int term_damage(VTermRect rect, __unused void* user)
     /* TODO: Reimplement in a less slow-ass way */
     VTermScreenCell cell;
     VTermPos pos;
+    uint8_t fg, bg, color;
     int row, col;
     for (row = rect.start_row; row < rect.end_row; row++)
     for (col = rect.start_col; col < rect.end_col; col++)
@@ -20,7 +21,14 @@ int term_damage(VTermRect rect, __unused void* user)
         pos.col = col;
         pos.row = row;
         vterm_screen_get_cell(vscreen, pos, &cell);
-        display_put(col, row, cell.chars[0], 0x07); 
+        fg = rgb2vga(cell.fg.red, cell.fg.green, cell.fg.blue);
+        bg = rgb2vga(cell.bg.red, cell.bg.green, cell.bg.blue);
+
+        if (cell.attrs.reverse)
+            color = bg | (fg << 4);
+        else
+            color = fg | (bg << 4);
+        display_put(col, row, cell.chars[0], color);
     }
     return 1;
 }

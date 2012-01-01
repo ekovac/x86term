@@ -17,6 +17,8 @@ extern display_state_t disp;
 #define VIDEOMEM ((video_cell_t*)0xb8000)
 #define VIDEOAT(x,y) (VIDEOMEM[(y)*disp.width+(x)])
 
+uint8_t rgb2vga(uint8_t r, uint8_t g, uint8_t b);
+
 void display_init(uint8_t width, uint8_t height);
 void display_erase(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 void display_clear(void);

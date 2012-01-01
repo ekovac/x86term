@@ -2,6 +2,16 @@
 
 display_state_t disp;
 
+uint8_t rgb2vga(uint8_t red, uint8_t green, uint8_t blue)
+{
+    uint8_t color = 0;
+    if (red > 128) color |= 0x1;
+    if (green > 128) color |= 0x2;
+    if (blue > 128) color |= 0x4;
+    
+    if (red > 250 || green > 250 || blue > 250) color |= 0x08;
+    return color;
+}
 void display_init(uint8_t width, uint8_t height)
 {
     disp.width = width;

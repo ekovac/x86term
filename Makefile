@@ -38,6 +38,8 @@ x86term: $(OBJECTS) obj/vterm.o
 	$(LD) $(LDFLAGS) -T linker.ld -o $@ $^
 test: x86term
 	qemu -serial stdio -kernel $?
+ttytest: x86term
+	qemu -serial /dev/ttyS0 -kernel $?
 debug: x86term
 	qemu -s -S -serial stdio -kernel $?
 floppydebug: floppy.img

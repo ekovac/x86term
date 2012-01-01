@@ -113,8 +113,7 @@ static void add_dec(int n)
     for(i = 0; i < digits; i++)
         addch(tmp[i]);
 }
-
-int vsnprintf(char * tgt, int len, const char * fmt, ...)
+int vsnprintf(char *tgt, size_t len, const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);

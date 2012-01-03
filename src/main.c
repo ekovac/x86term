@@ -5,22 +5,40 @@
 #include "pic.h"
 #include "serial.h"
 #include "termhandlers.h"
+static uint8_t times_through = 0;
 void kb_handler(void)
 {
     ringbuf_pushback(&kb_inbuf, inb(0x60));
     outb(0x20, 0x20);
     return;
 }
+void timer_handler(void)
+{
+    outb(0x20, 0x20);
+    return;
+}
 void exception_handler(registers_t regs)
 {
+    int i;
     static int count = 5;
     puts("CPU exception: ");
     put_bytes((uint8_t*)&(regs.int_no), sizeof(int)); puts(" "); 
     put_bytes((uint8_t*)&(regs.err_code), sizeof(int)); puts("\n");
     puts("Executing instruction: ");
-    put_bytes((uint8_t*)&regs.eip, sizeof(int)); puts("\n");
+    put_bytes((uint8_t*)&(regs.eip), sizeof(int)); puts("\n");
+    puts("Times through main loop: "); put_bytes(&times_through, 1); puts("\n");
+    if (regs.int_no == 0xD) /* Print the GDT entries. */
+    {
+        puts("GDT State:\n");
+        for (i = 1; i < 5; i++)
+        {
+            put_bytes((uint8_t*)&(gdt_entries[i]) ,sizeof(gdt_entry_t));
+            puts("\n");
+        }
+    }
     count--;
-    while (count == 0){};
+    if (count == 0) __asm__("hlt");
+    
     return;
 }
 void serial_handler(void)
@@ -52,7 +70,7 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     init_idt();
     PIC_remap(0x20, 0x28);
     init_vterm();
-    for (i=0; i<9; i++) IRQ_set_mask(i);
+    for (i=0; i<8; i++) IRQ_set_mask(i);
     IRQ_clear_mask(1);
     IRQ_clear_mask(4);
     serial_set_baud(9600);
@@ -60,7 +78,7 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     serial_rxint(1);
     while(1) /* Main control loop */
     {
-        
+        __asm__("sti"); 
         /* Check if we have KB input */ 
         rdy = 0;
         __asm__("cli");
@@ -93,6 +111,8 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
             serial_txint(1);
             __asm__("sti");
         }
+        __asm__("hlt");
+        times_through++;
     }
     return;
 }

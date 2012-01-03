@@ -52,4 +52,4 @@ floppy.img: x86term stage1
 bochs: floppy.img
 	bochs -qf bochs.cfg 'gdbstub: enabled=0'
 bochsdebug: floppy.img
-	bochs -qf bochs.cfg
+	bochs -qf bochs.cfg 'debug: action=report'

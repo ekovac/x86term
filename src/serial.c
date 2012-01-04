@@ -14,7 +14,7 @@ void serial_reset(void)
 {
     /* Clear FIFO, de-assert RTS/DSR */
     outb(COM1+1, 0x00);
-    outb(COM1+2, 0xC7);
+    outb(COM1+2, 0x07);
     outb(COM1+4, 0x00);
     outb(COM1+4, 0x0B);
 }

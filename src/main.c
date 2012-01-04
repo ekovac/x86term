@@ -44,18 +44,15 @@ void exception_handler(registers_t regs)
 void serial_handler(void)
 {
     uint8_t b;
-    if (inb(COM1+5) & 0x1) /* Received data */
+    while (inb(COM1+5) & 0x1) /* Received data */
     {
         ringbuf_pushback(&serial_inbuf, inb(COM1));
     }
-    else if (inb(COM1+5) & 0x20) /* Ready to transmit */
+    while (inb(COM1+5) & 0x20 && !ringbuf_isempty(&serial_outbuf)) /* Ready to transmit */
     {
-        if (!ringbuf_isempty(&serial_outbuf))
-        {
-            b = ringbuf_popfront(&serial_outbuf);
-            outb(COM1, b);
-            if (ringbuf_isempty(&serial_outbuf)) serial_txint(0); /* Disable the tx interrupt if the ringbuf is empty. */
-        }
+        b = ringbuf_popfront(&serial_outbuf);
+        outb(COM1, b);
+        if (ringbuf_isempty(&serial_outbuf)) serial_txint(0); /* Disable the tx interrupt if the ringbuf is empty. */
     }
     outb(0x20, 0x20); /* Acknowledge interrupt */
     return;

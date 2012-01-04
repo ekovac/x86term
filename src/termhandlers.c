@@ -47,6 +47,18 @@ int term_settermprop(VTermProp prop, VTermValue *val, __unused void* user)
     /* All unnecessary visible crap, don't worry about it yet. */
     return 1;
 }
+int term_bell(__unused void* user)
+{
+    return 0;
+}
+int term_resize(int rows, int cols, void* user)
+{
+    return 0;
+}
+int term_setmousefunc(VTermMouseFunc func, void *data, void *user)
+{
+    return 0;
+}
 void term_handlescancode(char scancode)
 {
     
@@ -66,9 +78,9 @@ void init_vterm(void)
     vtsc.moverect = &term_moverect;
     vtsc.movecursor = &term_movecursor;
     vtsc.settermprop = &term_settermprop;
-    vtsc.setmousefunc = NULL;
-    vtsc.bell = NULL;
-    vtsc.resize = NULL;
+    vtsc.setmousefunc = &term_setmousefunc;
+    vtsc.bell = &term_bell;
+    vtsc.resize = &term_resize;
 
     vscreen = vterm_obtain_screen(vterm);
     vterm_screen_set_callbacks(vscreen, &vtsc, NULL);

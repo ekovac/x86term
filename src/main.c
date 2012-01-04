@@ -20,7 +20,7 @@ void timer_handler(void)
 void exception_handler(registers_t regs)
 {
     int i;
-    static int count = 5;
+    static int count = 3;
     puts("CPU exception: ");
     put_bytes((uint8_t*)&(regs.int_no), sizeof(int)); puts(" "); 
     put_bytes((uint8_t*)&(regs.err_code), sizeof(int)); puts("\n");

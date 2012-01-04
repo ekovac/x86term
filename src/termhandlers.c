@@ -6,7 +6,6 @@ ringbuf_t serial_inbuf, serial_outbuf, kb_inbuf;
 
 VTerm* vterm;
 VTermScreen* vscreen;
-VTermScreenCallbacks vtsc;
 /* Callbacks that we'll need  */
 int term_damage(VTermRect rect, __unused void* user)
 {
@@ -35,12 +34,12 @@ int term_damage(VTermRect rect, __unused void* user)
 int term_movecursor(VTermPos pos, VTermPos oldpos, int visible, __unused void* user)
 {
     /* User-visible cursor, not internal */
-    return 0;
+    return 1;
 }
 int term_moverect(VTermRect dest, VTermRect src, __unused void* user)
 {
     /* TODO: Implement efficient moverect */
-    return 0;
+    return 1;
 }
 int term_settermprop(VTermProp prop, VTermValue *val, __unused void* user)
 {
@@ -49,15 +48,15 @@ int term_settermprop(VTermProp prop, VTermValue *val, __unused void* user)
 }
 int term_bell(__unused void* user)
 {
-    return 0;
+    return 1;
 }
 int term_resize(int rows, int cols, void* user)
 {
-    return 0;
+    return 1;
 }
 int term_setmousefunc(VTermMouseFunc func, void *data, void *user)
 {
-    return 0;
+    return 1;
 }
 void term_handlescancode(char scancode)
 {
@@ -70,17 +69,19 @@ void term_handleserial(char serialbyte)
     vterm_push_bytes(vterm, &serialbyte, 1);
     return;    
 }
+static VTermScreenCallbacks vtsc =
+{
+    .damage = &term_damage,
+    .moverect = &term_moverect,
+    .movecursor = &term_movecursor,
+    .settermprop = &term_settermprop,
+    .setmousefunc = &term_setmousefunc,
+    .bell = &term_bell,
+    .resize = &term_resize,
+};
 void init_vterm(void)
 {
     vterm = vterm_new(disp.height, disp.width);
-
-    vtsc.damage = &term_damage;
-    vtsc.moverect = &term_moverect;
-    vtsc.movecursor = &term_movecursor;
-    vtsc.settermprop = &term_settermprop;
-    vtsc.setmousefunc = &term_setmousefunc;
-    vtsc.bell = &term_bell;
-    vtsc.resize = &term_resize;
 
     vscreen = vterm_obtain_screen(vterm);
     vterm_screen_set_callbacks(vscreen, &vtsc, NULL);

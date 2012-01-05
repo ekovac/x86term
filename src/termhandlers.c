@@ -34,11 +34,22 @@ int term_damage(VTermRect rect, __unused void* user)
 int term_movecursor(VTermPos pos, VTermPos oldpos, int visible, __unused void* user)
 {
     /* User-visible cursor, not internal */
+    display_set_cursor(pos.col, pos.row);
     return 1;
 }
 int term_moverect(VTermRect dest, VTermRect src, __unused void* user)
 {
-    /* TODO: Implement efficient moverect */
+    int downward  = dest.start_row - src.start_row;
+    int rightward = dest.start_col - src.start_col;
+    for(int row = downward <= 0 ? dest.start_row : dest.end_row-1;
+            row >= dest.start_row && row < dest.end_row;
+            downward <= 0 ? row++ : row--) {
+        for(int col = rightward <= 0 ? dest.start_col : dest.end_col-1;
+                col >= dest.start_col && col < dest.end_col;
+                rightward <= 0 ? col++ : col--) {
+            display_copycell(col, row, col - rightward, row - downward);
+        }
+    }
     return 1;
 }
 int term_settermprop(VTermProp prop, VTermValue *val, __unused void* user)

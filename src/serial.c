@@ -35,3 +35,8 @@ void serial_putc(char c)
     outb(COM1, c);
     return;
 }
+void serial_puts(char *s)
+{
+    while(s[0])
+        serial_putc((s++)[0]);
+}

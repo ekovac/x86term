@@ -1,13 +1,14 @@
 #include "display.h"
+#include "base.h"
 
 display_state_t disp;
 
 uint8_t rgb2vga(uint8_t red, uint8_t green, uint8_t blue)
 {
     uint8_t color = 0;
-    if (red > 128) color |= 0x1;
+    if (red > 128) color |= 0x4;
     if (green > 128) color |= 0x2;
-    if (blue > 128) color |= 0x4;
+    if (blue > 128) color |= 0x1;
     
     if (red > 250 || green > 250 || blue > 250) color |= 0x08;
     return color;
@@ -51,8 +52,14 @@ void display_set_pen(uint8_t attr)
 }
 void display_set_cursor(uint8_t x, uint8_t y)
 {
+    unsigned short position = (y * 80) + x;
     disp.cursor_x = x;
     disp.cursor_y = y;
+
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, position & 0xFF);
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (position >> 8) & 0xFF);
     return;
 }
 void display_put(uint8_t col, uint8_t row, uint8_t c, uint8_t attr)
@@ -61,6 +68,10 @@ void display_put(uint8_t col, uint8_t row, uint8_t c, uint8_t attr)
     cell.data = c;
     cell.attr = attr;
     VIDEOAT(col, row) = cell;
+}
+void display_copycell(uint8_t destcol, uint8_t destrow, uint8_t srccol, uint8_t srcrow)
+{
+    VIDEOAT(destcol, destrow) = VIDEOAT(srccol, srcrow);
 }
 
 void display_set_cell(char c)

@@ -7,6 +7,7 @@
 void serial_set_baud(short rate);
 void serial_reset(void);
 void serial_putc(char c);
+void serial_puts(char *s);
 void serial_txint(char c);
 void serial_rxint(char c);
 #endif

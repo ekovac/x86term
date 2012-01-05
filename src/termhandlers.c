@@ -71,8 +71,21 @@ int term_setmousefunc(VTermMouseFunc func, void *data, void *user)
 }
 void term_handlescancode(char scancode)
 {
-    
-    vterm_input_push_char(vterm, keyboard.mods, scan2byte(scancode, 0));
+    key_t *key = lookup_keypress(scancode);
+    if(!key)
+        return;
+    switch(key->type) {
+    case KEY_NONE:
+    case KEY_MOD:
+        break;
+    case KEY_ASCII:
+        vterm_input_push_char(vterm, keyboard.mods & ~VTERM_MOD_SHIFT,
+                keyboard.mods & VTERM_MOD_SHIFT ? key->v.ascii.upper : key->v.ascii.lower);
+        break;
+    case KEY_SPECIAL:
+        vterm_input_push_key(vterm, keyboard.mods, key->v.value);
+        break;
+    }
     return;
 }
 void term_handleserial(char serialbyte)

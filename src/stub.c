@@ -113,11 +113,8 @@ static void add_dec(int n)
     for(i = 0; i < digits; i++)
         addch(tmp[i]);
 }
-int vsnprintf(char *tgt, size_t len, const char *fmt, ...)
+int vsnprintf(char *tgt, size_t len, const char *fmt, va_list ap)
 {
-    va_list ap;
-    va_start(ap, fmt);
-
     tgt_buf = tgt;
     tgt_remain = len - 1;
     total_written = 0;
@@ -139,6 +136,14 @@ int vsnprintf(char *tgt, size_t len, const char *fmt, ...)
                 addch(va_arg(ap, int));
                 break;
 
+            case 's':
+                {
+                    char *str = va_arg(ap, char *);
+                    while(*str)
+                        addch(*str++);
+                }
+                break;
+
             case '%':
                 addch('%');
                 break;
@@ -148,8 +153,6 @@ int vsnprintf(char *tgt, size_t len, const char *fmt, ...)
                 addch(ch);
         }
     }
-
-    va_end(ap);
 
     *tgt_buf = 0;
     return total_written;

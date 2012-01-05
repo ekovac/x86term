@@ -8,7 +8,7 @@ It's also in part a proof-of-concept for demonstrating the flexibility of Paul E
 
 System Requirements
 -------------------
-A PC-AT(X) computer with at least 300K or so of main memory, a floppy drive or hard disk of approximately the same size, a VGA-compatible video device, a reasonably sane BIOS, and a standard BIOS-connected UART.
+A PC-AT(X) computer with at least 512K or so of main memory, a floppy drive or hard disk of approximately the same size, a VGA-compatible video device, a reasonably sane BIOS, and a standard BIOS-connected UART.
 
 How To Build/Use
 ------------
@@ -24,10 +24,9 @@ Inside the _x86term_ directory, you should be able to run `make` and get the bas
 
 Current Limitations
 -------------------
+Currently _x86term_ is capable of being used to successfully edit files in _vim_ and generally fairly functional using bash. This has been tested both in an emulator and on a real piece of hardware. GNU _screen_ does not seem to work currently.
 
-In short, it's not usable yet. Next TODO item is good robust exception handling to track down problems faster.
-
-Right now, it crashes on real hardware and in Bochs, but runs almost kinda sorta correctly in qemu. We're working on that, since we're not competing to be the most bloated, overly-complex software terminal emulator.
+TODO: Altscreen support, various bugfixes, syslinux-based floppy target, optional baudrate selection at startup.
 
 Credit
 ------

@@ -13,20 +13,20 @@ A PC-AT(X) computer with at least 512K or so of main memory, a floppy drive or h
 How To Build/Use
 ------------
 
-Binary builds to come once things actually work.
+The easiest way to get started is to download the floppy image from the *Downloads* section of the GitHub page. This, however, may be outdated.
 
 It's highly suggested that you install qemu and/or bochs if you plan to develop for _x86term_.
 
 After cloning a copy of x86term's code, in a sibling directory checkout Paul Evans' libvterm by running `bzr checkout  http://bazaar.leonerd.org.uk/c/libvterm`.
 It's critical that you not build libvterm using his Makefile, as options need to be passed to prohibit the inclusion of your OS's library files.
 
-Inside the _x86term_ directory, you should be able to run `make` and get the basic kernel ELF image, which is bootable by any multiboot compliant bootloader. `make qemu` will launch a qemu instance using _stdio_ as the serial port and booting the _x86term_ kernel, and provides a handy tool for testing. `make floppy.img` will create an image file which you can (theoretically) write to a floppy disk and use to boot your soon-to-be glass terminal.
+Inside the _x86term_ directory, you should be able to run `make` and get the basic kernel ELF image, which is bootable by any multiboot compliant bootloader. `make qemu` will launch a qemu instance using _stdio_ as the serial port and booting the _x86term_ kernel, and provides a handy tool for testing. `make floppy.img` will create an image file which you can (theoretically) write to a floppy disk and use to boot your soon-to-be glass terminal. `make test` runs qemu with the serial port attached to a fresh bash instance. This is the most convenient way of trying out _x86term_.
 
 Current Limitations
 -------------------
 Currently _x86term_ is capable of being used to successfully edit files in _vim_ and generally fairly functional using bash. This has been tested both in an emulator and on a real piece of hardware. GNU _screen_ does not seem to work currently.
 
-TODO: Altscreen support, various bugfixes, syslinux-based floppy target, optional baudrate selection at startup.
+TODO: Optional baudrate selection at startup, various fixes to both libvterm and x86term to enable use of screen and to be more tolerant of large writes/reads.
 
 Credit
 ------

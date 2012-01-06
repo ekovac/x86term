@@ -109,6 +109,7 @@ void init_vterm(void)
 
     vscreen = vterm_obtain_screen(vterm);
     vterm_screen_set_callbacks(vscreen, &vtsc, NULL);
+    vterm_screen_enable_altscreen(vscreen, 1);
     vterm_screen_reset(vscreen);
     ringbuf_init(&serial_inbuf);
     ringbuf_init(&serial_outbuf);

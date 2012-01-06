@@ -13,6 +13,16 @@ uint8_t rgb2vga(uint8_t red, uint8_t green, uint8_t blue)
     if (red > 250 || green > 250 || blue > 250) color |= 0x08;
     return color;
 }
+
+void kpanic(char* msg, void* addr)
+{
+    __asm__("cli"); // Immediately stop handling interrupts.
+    display_clear();
+    puts("!!! x86term Panic !!!\n");
+    puts(msg); puts(" with "); put_bytes((uint8_t*)&addr, sizeof(void*)); puts("\n");
+    __asm__("hlt");
+}
+
 void display_init(uint8_t width, uint8_t height)
 {
     disp.width = width;

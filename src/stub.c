@@ -1,6 +1,7 @@
 #include "string.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "base.h"
 #include <stdarg.h>
 #define __unused __attribute__((unused))
 char heapbase[262144];
@@ -14,6 +15,9 @@ void *malloc(size_t size)
     if (!heaptop) heaptop = heapbase;
     void* newmem;
     newmem = heaptop;
+    if (heaptop + size > heapbase + sizeof(heapbase)) {
+        kpanic("Heap overflow. Requested size:", (void*)size);
+    }
     heaptop += size;
     return newmem;
 }

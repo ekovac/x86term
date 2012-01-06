@@ -1,11 +1,10 @@
 #ifndef X86TERM_RINGBUF_H
 #define X86TERM_RINGBUF_H
 #include "stdint.h"
-#define RINGBUF_LEN (64)
+#define RINGBUF_LEN (64) 
 typedef struct RINGBUF_STRUCT {
     uint8_t data[RINGBUF_LEN];
     size_t front, back;
-    size_t len;
 } ringbuf_t;
 
 void ringbuf_init(ringbuf_t* buf);

@@ -26,19 +26,9 @@ void exception_handler(registers_t regs)
     put_bytes((uint8_t*)&(regs.err_code), sizeof(int)); puts("\n");
     puts("Executing instruction: ");
     put_bytes((uint8_t*)&(regs.eip), sizeof(int)); puts("\n");
-    puts("Times through main loop: "); put_bytes(&times_through, 1); puts("\n");
-    if (regs.int_no == 0xD) /* Print the GDT entries. */
-    {
-        puts("GDT State:\n");
-        for (i = 1; i < 5; i++)
-        {
-            put_bytes((uint8_t*)&(gdt_entries[i]) ,sizeof(gdt_entry_t));
-            puts("\n");
-        }
-    }
     count--;
     if (count == 0) __asm__("hlt");
-    
+
     return;
 }
 void serial_handler(void)
@@ -99,7 +89,7 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
         if (rdy) term_handleserial(data);
         
         /* Check if we have stuff to output to write to serial */
-        if (vterm_output_bufferlen(vterm) > 0)
+        if (vterm_output_bufferlen(vterm) != 0)
         {
             vterm_output_bufferread(vterm, &data, 1);
             __asm__("cli");
@@ -108,8 +98,13 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
             serial_txint(1);
             __asm__("sti");
         }
-        __asm__("hlt");
         times_through++;
+        if (ringbuf_isempty(&serial_inbuf) 
+            && ringbuf_isempty(&kb_inbuf) 
+            && vterm_output_bufferlen(vterm) == 0)
+        {
+            __asm__("hlt"); /* Nothing to do, wait for next interrupt. */
+        }
     }
     return;
 }

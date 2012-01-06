@@ -14,10 +14,8 @@ OBJECTS=obj/loader.o obj/base.o obj/display.o obj/interrupt_handlers.o obj/inter
 # Bootstrap code taken from wiki.osdev.org/Bare_bones
 all: x86term
 floppy: floppy.img
-stage1:
-	wget -qO - $(GRUB_URL) | tar zx grub-0.97-i386-pc/boot/grub/stage1 grub-0.97-i386-pc/boot/grub/stage2 --strip-components 3
 clean:
-	rm -f obj/*.o *.bin *.img x86term $(LIBVTERM)/src/*.o
+	rm -f obj/*.o *.bin *.img x86term $(LIBVTERM)/src/*.o x86term.strip
 obj/interrupt_handlers.o: src/interrupt_handlers.s
 	$(AS) $(ASFLAGS) $?  -o $@
 obj/loader.o: src/loader.s
@@ -37,19 +35,20 @@ obj/%.o: src/%.c
 x86term: $(OBJECTS) obj/vterm.o
 	$(LD) $(LDFLAGS) -T linker.ld -o $@ $^
 test: x86term
-	qemu -serial stdio -kernel $?
-ttytest: x86term
-	qemu -serial /dev/ttyS0 -kernel $?
+	./run-shell
+floppytest: x86term floppy.img
+	qemu -serial stdio -fda floppy.img
 debug: x86term
 	qemu -s -S -serial stdio -kernel $?
 floppydebug: floppy.img
 	qemu -s -S -serial stdio -fda floppy.img
-floppy.img: x86term stage1
-	cat stage1 stage2 > floppy.img.tmp
-	dd if=/dev/zero conv=notrunc oflag=append of=floppy.img.tmp bs=1 count=750
-	cat x86term >> floppy.img.tmp
+# Floppy target depends on mtools, syslinux
+x86term.strip: x86term
+	strip x86term -o x86term.strip
+floppy.img: x86term.strip
+	dd if=/dev/zero bs=512 count=2880 of=floppy.img.tmp
+	/sbin/mkfs.msdos -n x86term floppy.img.tmp
+	syslinux --install floppy.img.tmp
+	mcopy -i floppy.img.tmp x86term.strip ::x86term
+	mcopy -i floppy.img.tmp syslinux.cfg /usr/lib/syslinux/mboot.c32 ::
 	mv floppy.img.tmp floppy.img
-bochs: floppy.img
-	bochs -qf bochs.cfg 'gdbstub: enabled=0'
-bochsdebug: floppy.img
-	bochs -qf bochs.cfg 'debug: action=report'

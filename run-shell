@@ -1,0 +1,41 @@
+#!/usr/bin/perl
+# Author: Paul "LeoNerd" Evans
+use strict;
+use warnings;
+use POSIX qw( setsid dup2 );
+
+my $kid = open my $pipeh, "-|";
+defined $kid or die "fork: $!";
+
+if( !$kid ) {
+   # child
+   open STDERR, ">&STDOUT"; # dup STDOUT onto STDERR
+   exec qw( qemu -serial pty -kernel x86term ) or die "exec: $!";
+}
+
+my $line = <$pipeh>;
+
+# $line now contains something like  char device redirected to /dev/pts/4
+$line =~ m/^char device redirected to (.*)$/ or die "Expected to read ptypath, found: $line\n";
+my $ptypath = $1;
+
+print "Running bash --login against $ptypath\n";
+
+$kid = fork;
+defined $kid or die "fork: $!";
+$kid and exit(0);
+
+setsid();
+
+open my $pty, "+<", $ptypath or die "open($ptypath): $!";
+
+dup2( $pty->fileno, 0 ) or die "dup2: $!";
+dup2( $pty->fileno, 1 ) or die "dup2: $!";
+
+dup2( 1, 2 ) or die "dup2: $!";
+
+close $pty;
+
+system qw( stty sane ); # TODO: Rewrite internally using IO::Termios
+
+exec qw( bash --login );

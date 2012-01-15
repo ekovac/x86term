@@ -23,6 +23,24 @@ void kpanic(char* msg, void* addr)
     __asm__("hlt");
 }
 
+void display_enablecursor(uint8_t enable)
+{
+    uint8_t char_height;
+    if (enable)
+    {
+        outb(0x3D4, 0x9);
+        char_height = inb(0x3D5) & 0x1F;
+        outb(0x3D4, 0xA);
+        outb(0x3D5, char_height-1);
+        outb(0x3D4, 0xB);
+        outb(0x3D4, char_height);
+    }
+    else
+    {
+        outb(0x3D4, 0xA);
+        outb(0x3D5, 0x10);
+    }
+}
 void display_init(uint8_t width, uint8_t height)
 {
     disp.width = width;
@@ -30,6 +48,7 @@ void display_init(uint8_t width, uint8_t height)
     disp.cursor_x = 0;
     disp.cursor_y = 0;
     disp.pen = 0x07;
+    display_enablecursor(1); 
     return;
 }
 

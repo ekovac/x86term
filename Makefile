@@ -1,11 +1,11 @@
 CC=gcc
 LD=ld
 AS=nasm
-LDFLAGS=-melf_i386 
-ASFLAGS=-f elf32
+LDFLAGS+=-melf_i386 
+ASFLAGS+=-f elf32
 GRUB_URL=ftp://alpha.gnu.org/gnu/grub/grub-0.97-i386-pc.tar.gz
 LIBVTERM=../libvterm/
-CFLAGS=-g -std=c99 -c -m32 -Wall -Wextra -nostdlib -fno-builtin -nodefaultlibs -Iinclude/ -I$(LIBVTERM)/include/
+CFLAGS+=-g -std=c99 -c -m32 -Wall -Wextra -nostdlib -fno-builtin -nodefaultlibs -Iinclude/ -I$(LIBVTERM)/include/
 VTERMCFILES=$(wildcard $(LIBVTERM)/src/*.c)
 VTERMOFILES=$(VTERMCFILES:.c=.o)
 TBLFILES=$(wildcard $(LIBVTERM)/src/encoding/*.tbl)

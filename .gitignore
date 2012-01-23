@@ -2,5 +2,6 @@
 stage1
 stage2
 x86term
+x86term.strip
 floppy.img
 .*.swp

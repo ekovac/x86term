@@ -2,6 +2,7 @@
 #include "keys.h"
 #include "display.h"
 #include "stdlib.h"
+#include <string.h>
 ringbuf_t serial_inbuf, serial_outbuf, kb_inbuf;
 
 VTerm* vterm;
@@ -92,6 +93,11 @@ void term_handleserial(char serialbyte)
 {
     vterm_push_bytes(vterm, &serialbyte, 1);
     return;    
+}
+void term_puts(char* str)
+{   
+    vterm_push_bytes(vterm, str, strlen(str));
+    return; 
 }
 static VTermScreenCallbacks vtsc =
 {

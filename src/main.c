@@ -63,6 +63,8 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     serial_set_baud(9600);
     serial_reset();
     serial_rxint(1);
+    term_puts("x86term - terminal emulator for bare x86 PCs\r\n"
+              "(C) 2012 Philip \"digitalfox\" Kovac\r\n\r\n");
     while(1) /* Main control loop */
     {
         __asm__("sti"); 

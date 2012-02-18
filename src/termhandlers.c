@@ -2,6 +2,7 @@
 #include "keys.h"
 #include "display.h"
 #include "stdlib.h"
+#include "timer.h"
 #include <string.h>
 ringbuf_t serial_inbuf, serial_outbuf, kb_inbuf;
 
@@ -60,7 +61,8 @@ int term_settermprop(VTermProp prop, VTermValue *val, __unused void* user)
 }
 int term_bell(__unused void* user)
 {
-    return 1;
+    beep_beep(600,200);
+    return 0;
 }
 int term_resize(int rows, int cols, void* user)
 {

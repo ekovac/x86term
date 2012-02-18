@@ -5,6 +5,7 @@
 #include "pic.h"
 #include "serial.h"
 #include "termhandlers.h"
+#include "timer.h"
 static uint8_t times_through = 0;
 void kb_handler(void)
 {
@@ -12,14 +13,8 @@ void kb_handler(void)
     outb(0x20, 0x20);
     return;
 }
-void timer_handler(void)
-{
-    outb(0x20, 0x20);
-    return;
-}
 void exception_handler(registers_t regs)
 {
-    int i;
     static int count = 3;
     puts("CPU exception: ");
     put_bytes((uint8_t*)&(regs.int_no), sizeof(int)); puts(" "); 
@@ -57,7 +52,9 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     init_idt();
     PIC_remap(0x20, 0x28);
     init_vterm();
+    timer_config(0, 1000);
     for (i=0; i<8; i++) IRQ_set_mask(i);
+    IRQ_clear_mask(0);
     IRQ_clear_mask(1);
     IRQ_clear_mask(4);
     serial_set_baud(9600);

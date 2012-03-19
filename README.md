@@ -8,7 +8,9 @@ It's also in part a proof-of-concept for demonstrating the flexibility of Paul E
 
 System Requirements
 -------------------
-A PC-AT(X) computer with at least 512K or so of main memory, a floppy drive or hard disk of approximately the same size, a VGA-compatible video device, a reasonably sane BIOS, and a standard BIOS-connected UART.
+A PC-AT(X) computer with at least 512K or so of highmem, a floppy drive or hard disk of approximately the same size, a VGA-compatible video device, a reasonably sane BIOS, and a standard BIOS-connected UART.
+
+Tested successfully on a Toshiba 400CS, and a couple of PIIX-board Intel systems.
 
 How To Build/Use
 ------------

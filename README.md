@@ -8,7 +8,9 @@ It's also in part a proof-of-concept for demonstrating the flexibility of Paul E
 
 System Requirements
 -------------------
-A PC-AT(X) computer with at least 512K or so of main memory, a floppy drive or hard disk of approximately the same size, a VGA-compatible video device, a reasonably sane BIOS, and a standard BIOS-connected UART.
+A PC-AT(X) computer with at least 512K or so of highmem, a floppy drive or hard disk of approximately the same size, a VGA-compatible video device, a reasonably sane BIOS, and a standard BIOS-connected UART.
+
+Tested successfully on a Toshiba 400CS, and a couple of PIIX-board Intel systems.
 
 How To Build/Use
 ------------
@@ -24,9 +26,9 @@ Inside the _x86term_ directory, you should be able to run `make` and get the bas
 
 Current Limitations
 -------------------
-Currently _x86term_ is capable of being used to successfully edit files in _vim_ and generally fairly functional using bash. This has been tested both in an emulator and on a real piece of hardware. GNU _screen_ does not seem to work currently.
+Currently _x86term_ is capable of being used to successfully edit files in _vim_ and generally fairly functional using bash. This has been tested both in an emulator and on a real piece of hardware. GNU _screen_ + _irssi_ works, which fulfills the initial goals of this project.
 
-TODO: Optional baudrate selection at startup, various fixes to both libvterm and x86term to enable use of screen and to be more tolerant of large writes/reads.
+TODO: Optional baudrate selection at startup (maybe baudrate autodetection?), parsing of multiboot parameters, alternative video modes, better terminal bell, optional gweep/keypress beep.
 
 Credit
 ------

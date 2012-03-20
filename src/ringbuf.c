@@ -1,5 +1,5 @@
 #include "ringbuf.h"
-#include "display.h"
+#include "base.h"
 void ringbuf_init(ringbuf_t* buf)
 {
     buf->front = 0;

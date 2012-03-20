@@ -15,7 +15,7 @@ void *malloc(size_t size)
     if (!heaptop) heaptop = heapbase;
     void* newmem;
     newmem = heaptop;
-    if (heaptop + size > heapbase + sizeof(heapbase)) {
+    if (heaptop + size > (void*)heapbase + sizeof(heapbase)) {
         kpanic("Heap overflow. Requested size:", (void*)size);
     }
     heaptop += size;
@@ -80,6 +80,42 @@ int strncmp(const char *s1, const char *s2, size_t n)
         if ((s1[i] != s2[i]) || (s1[i] == 0)) return s1[i]-s2[i];
     return 0;
 }
+inline static int char_is_in(char c, const char* s)
+{
+    char sc;
+    while ((sc = *(s++)))
+        if (sc == c)  return 1;
+    return 0;
+}
+
+size_t strspn(const char *s, const char *accept)
+{
+    char src;
+    size_t len = 0;
+    while ((src = *(s++))) 
+    {
+        if (char_is_in(src, accept))
+            len++;
+        else
+            break;
+    }   
+    return len;
+}
+
+size_t strcspn(const char *s, const char *reject)
+{
+    char src;
+    size_t len = 0;
+    while ((src = *(s++)))
+    {
+        if (char_is_in(src, reject))
+            break;
+        else
+            len++;
+    }
+    return len;
+}
+
 /* vnsprintf and support code by Duskwuff */
 static char *tgt_buf;
 static int tgt_remain, total_written;

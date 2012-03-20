@@ -57,7 +57,7 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     IRQ_clear_mask(0);
     IRQ_clear_mask(1);
     IRQ_clear_mask(4);
-    serial_set_baud(9600);
+    serial_set_baud(115200);
     serial_reset();
     serial_rxint(1);
     term_puts("x86term - terminal emulator for bare x86 PCs\r\n"

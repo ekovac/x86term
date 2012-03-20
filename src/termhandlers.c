@@ -33,7 +33,7 @@ int term_damage(VTermRect rect, __unused void* user)
     }
     return 1;
 }
-int term_movecursor(VTermPos pos, VTermPos oldpos, int visible, __unused void* user)
+int term_movecursor(VTermPos pos, __unused VTermPos oldpos, __unused int visible, __unused void* user)
 {
     /* User-visible cursor, not internal */
     display_set_cursor(pos.col, pos.row);
@@ -54,7 +54,7 @@ int term_moverect(VTermRect dest, VTermRect src, __unused void* user)
     }
     return 1;
 }
-int term_settermprop(VTermProp prop, VTermValue *val, __unused void* user)
+int term_settermprop(__unused VTermProp prop, __unused VTermValue *val, __unused void* user)
 {
     /* All unnecessary visible crap, don't worry about it yet. */
     return 1;
@@ -63,14 +63,6 @@ int term_bell(__unused void* user)
 {
     beep_beep(600,200);
     return 0;
-}
-int term_resize(int rows, int cols, void* user)
-{
-    return 1;
-}
-int term_setmousefunc(VTermMouseFunc func, void *data, void *user)
-{
-    return 1;
 }
 void term_handlescancode(char scancode)
 {
@@ -107,9 +99,9 @@ static VTermScreenCallbacks vtsc =
     .moverect = &term_moverect,
     .movecursor = &term_movecursor,
     .settermprop = &term_settermprop,
-    .setmousefunc = &term_setmousefunc,
+    .setmousefunc = NULL,
     .bell = &term_bell,
-    .resize = &term_resize,
+    .resize = NULL,
 };
 void init_vterm(void)
 {

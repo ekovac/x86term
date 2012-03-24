@@ -5,6 +5,11 @@
 #include <stdarg.h>
 #define __unused __attribute__((unused))
 char heapbase[262144];
+int abs(int i)
+{
+    if (i>0) return i;
+    else return i*-1;
+}
 int fprintf(__unused FILE* stream, __unused const char* format, ...)
 {
     return 0;

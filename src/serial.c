@@ -1,42 +1,42 @@
 #include "serial.h"
-void serial_set_baud(short rate)
+void serial_set_baud(short combase, short rate)
 { /* Also sets line protocol */
     short divisor;
     divisor = 115200/rate;
-    outb(COM1+1, 0x00);
-    outb(COM1+3, 0x80);
-    outb(COM1+0, divisor & 0x00FF);
-    outb(COM1+1, (divisor & 0xFF00) >> 8);
-    outb(COM1+3, 0x03);
+    outb(combase+1, 0x00);
+    outb(combase+3, 0x80);
+    outb(combase+0, divisor & 0x00FF);
+    outb(combase+1, (divisor & 0xFF00) >> 8);
+    outb(combase+3, 0x03);
     return;
 }
-void serial_reset(void)
+void serial_reset(short combase)
 {
     /* Clear FIFO, de-assert RTS/DSR */
-    outb(COM1+1, 0x00);
-    outb(COM1+2, 0x07);
-    outb(COM1+4, 0x00);
-    outb(COM1+4, 0x0B);
+    outb(combase+1, 0x00);
+    outb(combase+2, 0x07);
+    outb(combase+4, 0x00);
+    outb(combase+4, 0x0B);
 }
-void serial_txint(char c)
+void serial_txint(short combase, char c)
 {
     c = (c && c) << 1; 
-    c = c | (inb(COM1+1) & ~0x02);
-    outb(COM1+1, c);
+    c = c | (inb(combase+1) & ~0x02);
+    outb(combase+1, c);
 }
-void serial_rxint(char c)
+void serial_rxint(short combase, char c)
 {
     c = (c && c);
-    c = c | (inb(COM1+1) & ~0x01);
-    outb(COM1+1, c);
+    c = c | (inb(combase+1) & ~0x01);
+    outb(combase+1, c);
 }
-void serial_putc(char c)
+void serial_putc(short combase, char c)
 {
-    outb(COM1, c);
+    outb(combase, c);
     return;
 }
-void serial_puts(char *s)
+void serial_puts(short combase, char *s)
 {
-    while(s[0])
-        serial_putc((s++)[0]);
+    while(*s)
+        serial_putc(combase, *(s++));
 }

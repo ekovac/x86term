@@ -7,6 +7,7 @@
 #include "termhandlers.h"
 #include "timer.h"
 static uint8_t times_through = 0;
+static short combase = COM1;
 void kb_handler(void)
 {
     ringbuf_pushback(&kb_inbuf, inb(0x60));
@@ -29,18 +30,37 @@ void exception_handler(registers_t regs)
 void serial_handler(void)
 {
     uint8_t b;
-    while (inb(COM1+5) & 0x1) /* Received data */
+    while (inb(combase+5) & 0x1) /* Received data */
     {
-        ringbuf_pushback(&serial_inbuf, inb(COM1));
+        ringbuf_pushback(&serial_inbuf, inb(combase));
     }
-    while (inb(COM1+5) & 0x20 && !ringbuf_isempty(&serial_outbuf)) /* Ready to transmit */
+    while (inb(combase+5) & 0x20 && !ringbuf_isempty(&serial_outbuf)) /* Ready to transmit */
     {
         b = ringbuf_popfront(&serial_outbuf);
-        outb(COM1, b);
-        if (ringbuf_isempty(&serial_outbuf)) serial_txint(0); /* Disable the tx interrupt if the ringbuf is empty. */
+        outb(combase, b);
+        if (ringbuf_isempty(&serial_outbuf)) serial_txint(combase, 0); /* Disable the tx interrupt if the ringbuf is empty. */
     }
     outb(0x20, 0x20); /* Acknowledge interrupt */
     return;
+}
+void parse_args(void* mbd, int* port, int* baud)
+{
+    uint32_t flags = mbd;
+    if (flags & (1 << 1))
+    {
+        /* cmdline is specified. */
+        
+    }
+    else
+    {
+        *port = 1;
+        *baud = 9600;
+    }
+    if (flags & (1 << 11))
+    {
+        /* vbe info is specified. */
+    }
+
 }
 void kmain(__unused void* mbd, __unused unsigned int magic)
 {
@@ -56,10 +76,13 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     for (i=0; i<8; i++) IRQ_set_mask(i);
     IRQ_clear_mask(0);
     IRQ_clear_mask(1);
-    IRQ_clear_mask(4);
-    serial_set_baud(115200);
-    serial_reset();
-    serial_rxint(1);
+    if (combase == COM2)
+        IRQ_clear_mask(3);
+    if (combase == COM1)
+        IRQ_clear_mask(4);
+    serial_set_baud(combase, 9600);
+    serial_reset(combase);
+    serial_rxint(combase, 1);
     term_puts("x86term - terminal emulator for bare x86 PCs\r\n"
               "(C) 2012 Philip \"digitalfox\" Kovac\r\n\r\n");
     while(1) /* Main control loop */
@@ -94,7 +117,7 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
             __asm__("cli");
             ringbuf_pushback(&serial_outbuf, data);
             /* Enable transmit interrupt */
-            serial_txint(1);
+            serial_txint(combase, 1);
             __asm__("sti");
         }
         times_through++;

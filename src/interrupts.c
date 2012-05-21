@@ -48,6 +48,7 @@ void init_idt(void)
 
     idt_set_gate(0x20, (uint32_t)timer_isr, 0x08, 0x8E);
     idt_set_gate(0x21, (uint32_t)kb_isr, 0x08, 0x8E);
+    idt_set_gate(0x23, (uint32_t)serial_isr, 0x08, 0x8E);
     idt_set_gate(0x24, (uint32_t)serial_isr, 0x08, 0x8E);
 
     idt_flush((uint32_t)&idt_ptr);

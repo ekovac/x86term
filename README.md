@@ -10,7 +10,7 @@ System Requirements
 -------------------
 A PC-AT(X) computer with at least 512K or so of highmem, a floppy drive or hard disk of approximately the same size, a VGA-compatible video device, a reasonably sane BIOS, and a standard BIOS-connected UART.
 
-Tested successfully on a Toshiba 400CS, and a couple of PIIX-board Intel systems.
+Tested successfully on a couple of PIIX-board Intel systems, is known to boot (but actual functionality untested) on Toshiba 400CS and many others.
 
 How To Build/Use
 ------------

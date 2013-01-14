@@ -1,36 +1,8 @@
-global kb_isr
-global serial_isr
-global cpu_isr
-global timer_isr
-extern kb_handler
-extern serial_handler
-extern exception_handler
-extern timer_handler
-kb_isr:
-    cli
-    pushad
-    call kb_handler
-    popad
-    sti
-    iret
-timer_isr:
-    cli
-    pushad
-    call timer_handler
-    popad
-    sti
-    iret
-serial_isr:
-    cli
-    pushad
-    call serial_handler
-    popad
-    sti
-    iret
-; Stolen from James Molloy
+extern common_handler
+
 isr_common_stub:
    pusha                   ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
-   call exception_handler
+   call common_handler
    popa                     ; Pops edi,esi,ebp...
    add esp, 8     ; Cleans up the pushed error code and pushed ISR number
    sti

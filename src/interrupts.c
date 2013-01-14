@@ -5,9 +5,13 @@
 idt_entry_t idt_entries[256];
 idt_ptr_t   idt_ptr;
 
+void common_handler(registers_t regs)
+{
+    return;
+}
+
 void init_idt(void)
 {
-    int i=0;
     idt_ptr.limit = sizeof(idt_entry_t) * 48 -1;
     idt_ptr.base  = (uint32_t)idt_entries;
 
@@ -45,11 +49,6 @@ void init_idt(void)
     idt_set_gate(29, (uint32_t)isr29, 0x08, 0x8E);
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
-
-    idt_set_gate(0x20, (uint32_t)timer_isr, 0x08, 0x8E);
-    idt_set_gate(0x21, (uint32_t)kb_isr, 0x08, 0x8E);
-    idt_set_gate(0x23, (uint32_t)serial_isr, 0x08, 0x8E);
-    idt_set_gate(0x24, (uint32_t)serial_isr, 0x08, 0x8E);
 
     idt_flush((uint32_t)&idt_ptr);
     return;

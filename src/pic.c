@@ -64,3 +64,9 @@ void IRQ_clear_mask(unsigned char IRQline) {
     value = inb(port) & ~(1 << IRQline);
     outb(port, value);        
 }
+
+void init_pic()
+{
+    PIC_remap(0x20,0x28);
+    return;
+}

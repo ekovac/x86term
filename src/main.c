@@ -15,7 +15,7 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     init_vterm();
     timer_config(0, 1000);
     for (i=0; i<8; i++) IRQ_set_mask(i);
-    IRQ_clear_mask(0);
+    IRQ_clear_mask(0); 
     IRQ_clear_mask(1);
     if (combase == COM2)
         IRQ_clear_mask(3);

@@ -6,7 +6,7 @@ typedef struct RINGBUF_STRUCT {
     uint8_t data[RINGBUF_LEN];
     size_t front, back;
 } ringbuf_t;
-
+ringbuf_t* ringbuf_new(void);
 void ringbuf_init(ringbuf_t* buf);
 uint8_t ringbuf_popfront(ringbuf_t* buf);
 void ringbuf_pushback(ringbuf_t* buf, uint8_t b);

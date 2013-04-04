@@ -1,4 +1,27 @@
 #include "serial.h"
+
+const serialconfig_t DEFAULT_SERIALCONFIG = {
+        speed = 38400, 
+        data_bits = 8, 
+        parity = P_NONE, 
+        stop_bits = 1};
+
+void serial_init(serial_t* port, short combase, short irq, serialconfig_t config)
+{
+    /* Configure port */
+    port->combase = combase;
+    port->irq = irq;
+    port->config = config;
+    serial_applycfg(port);
+    /* Initialize I/O buffers */
+    port->in_buf = ringbuf_new();
+    port->out_buf = ringbuf_new();
+    port->exception = 0;
+}
+void serial_applycfg(serial_t* port)
+{
+    return;
+}
 void serial_set_baud(short combase, short rate)
 { /* Also sets line protocol */
     short divisor;
@@ -10,7 +33,7 @@ void serial_set_baud(short combase, short rate)
     outb(combase+3, 0x03);
     return;
 }
-void serial_reset(short combase)
+void serial_reset(serial_t* port)
 {
     /* Clear FIFO, de-assert RTS/DSR */
     outb(combase+1, 0x00);

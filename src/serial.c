@@ -1,10 +1,12 @@
 #include "serial.h"
 
 const serialconfig_t DEFAULT_SERIALCONFIG = {
-        speed = 38400, 
-        data_bits = 8, 
-        parity = P_NONE, 
-        stop_bits = 1};
+        .speed = 38400, 
+        .data_bits = 8, 
+        .parity = P_NONE, 
+        .stop_bits = STOP_ONEBIT};
+/* Ugly utility functions */
+
 
 void serial_init(serial_t* port, short combase, short irq, serialconfig_t config)
 {
@@ -17,42 +19,41 @@ void serial_init(serial_t* port, short combase, short irq, serialconfig_t config
     port->in_buf = ringbuf_new();
     port->out_buf = ringbuf_new();
     port->exception = 0;
+    /* Register interrupt handlers */
 }
+
 void serial_applycfg(serial_t* port)
 {
-    return;
+    /* Compute the LCR value. */
+    serialconfig_t cfg = port->config;
+
+    linecontrol_t lcr;
+    lcr.data_bits = cfg.data_bits - 5;
+    lcr.stop_bits = (cfg.stop_bits == STOP_MOREBITS);
+    lcr.parity = cfg.parity;
+
+    short divisor = 115200/cfg.speed;
+
+    outb(port->combase + 1, 0x00); /* Disable all interrupts */
+    outb(port->combase + 3, 0x80); /* Prepare to set baud */
+    outb(port->combase + 0, divisor & 0x00FF); /* Set low part of divisor. */
+    outb(port->combase + 1, (divisor & 0xFF00) >> 8 ); /* Set high part of divisor. */
+    outb(port->combase + 3, lcr.byte_repr); /* Set the line protocol */
+
 }
-void serial_set_baud(short combase, short rate)
-{ /* Also sets line protocol */
-    short divisor;
-    divisor = 115200/rate;
-    outb(combase+1, 0x00);
-    outb(combase+3, 0x80);
-    outb(combase+0, divisor & 0x00FF);
-    outb(combase+1, (divisor & 0xFF00) >> 8);
-    outb(combase+3, 0x03);
-    return;
-}
-void serial_reset(serial_t* port)
+
+serialint_t serial_getint(serial_t* port)
 {
-    /* Clear FIFO, de-assert RTS/DSR */
-    outb(combase+1, 0x00);
-    outb(combase+2, 0x07);
-    outb(combase+4, 0x00);
-    outb(combase+4, 0x0B);
+    serialint_t intcfg;
+    intcfg.byte_repr = inb(port->combase+1);
+    return intcfg;
 }
-void serial_txint(short combase, char c)
+
+void serial_setint(serial_t* port, serialint_t value)
 {
-    c = (c && c) << 1; 
-    c = c | (inb(combase+1) & ~0x02);
-    outb(combase+1, c);
+    outb(port->combase+1, value.byte_repr);
 }
-void serial_rxint(short combase, char c)
-{
-    c = (c && c);
-    c = c | (inb(combase+1) & ~0x01);
-    outb(combase+1, c);
-}
+/*
 void serial_putc(short combase, char c)
 {
     outb(combase, c);
@@ -63,3 +64,4 @@ void serial_puts(short combase, char *s)
     while(*s)
         serial_putc(combase, *(s++));
 }
+*/

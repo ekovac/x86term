@@ -20,6 +20,14 @@ void serial_init(serial_t* port, short combase, short irq, serialconfig_t config
     port->out_buf = ringbuf_new();
     port->exception = 0;
     /* Register interrupt handlers */
+    x86event_register(irq, serial_handleinterrupt, (void*)port);
+}
+
+int serial_handleinterrupt(registers_t state, void* voidport)
+{
+    serial_t* port = (serial_t*)voidport;
+    term_puts("Stuff from serial port!");
+    return 0;
 }
 
 void serial_applycfg(serial_t* port)

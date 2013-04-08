@@ -2,14 +2,20 @@
 /* Ganked from osdev */
 /* reinitialize the PIC controllers, giving them specified vector offsets
    rather than 8 and 70, as configured by default */
- 
+
+
+void pic_getmap(int* offset1, int* offset2)
+{
+    // TODO   
+} 
 /*
 arguments:
     offset1 - vector offset for master PIC
         vectors on the master become offset1..offset1+7
     offset2 - same for slave PIC: offset2..offset2+7
 */
-void PIC_remap(int offset1, int offset2)
+
+void pic_remap(int offset1, int offset2)
 {
     unsigned char a1, a2;
  
@@ -37,36 +43,33 @@ void PIC_remap(int offset1, int offset2)
     outb(PIC1_DATA, a1);   // restore saved masks.
     outb(PIC2_DATA, a2);
 }
-void IRQ_set_mask(unsigned char IRQline) {
-    uint16_t port;
-    uint8_t value;
- 
-    if(IRQline < 8) {
-        port = PIC1_DATA;
-    } else {
-        port = PIC2_DATA;
-        IRQline -= 8;
-    }
-    value = inb(port) | (1 << IRQline);
-    outb(port, value);        
-}
- 
-void IRQ_clear_mask(unsigned char IRQline) {
-    uint16_t port;
-    uint8_t value;
- 
-    if(IRQline < 8) {
-        port = PIC1_DATA;
-    } else {
-        port = PIC2_DATA;
-        IRQline -= 8;
-    }
-    value = inb(port) & ~(1 << IRQline);
-    outb(port, value);        
+
+void pic_add_mask(uint16_t mask) {
+    pic_set_mask(pic_get_mask() | mask);
 }
 
-void init_pic()
-{
-    PIC_remap(0x20,0x28);
-    return;
+void pic_del_mask(uint16_t mask) {   
+    pic_set_mask(pic_get_mask() & ~(mask));
+}
+
+void pic_set_mask(uint16_t mask) {
+    uint8_t pic1_val = mask & 0xFF;
+    uint8_t pic2_val = (mask >> 8) & 0xFF;
+    outb(PIC1_DATA, pic1_val);
+    outb(PIC2_DATA, pic2_val);
+}
+
+uint16_t pic_get_mask() {
+    uint16_t pic1_val, pic2_val;
+    uint16_t result;
+
+    pic1_val = inb(PIC1_DATA);
+    pic2_val = inb(PIC2_DATA);
+
+    result = pic2_val << 8 | pic1_val;
+
+    return result;
+}
+void pic_acknowledge() {
+    outb(0x20, 0x20);
 }

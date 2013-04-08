@@ -3,9 +3,11 @@
 #include "base.h"
 #include "stdint.h"
 #include "ringbuf.h"
+#include "events.h"
 #define COM1 (0x3F8)
 #define COM2 (0x2F8)
-#define COM1IRQ (0x)
+#define COM1IRQ (4)
+#define COM2IRQ (3)
 
 typedef union {
 	struct {
@@ -89,5 +91,7 @@ void serial_putc(serial_t* port, char c);
 void serial_getc(serial_t* port, char* c);
 void serial_puts(serial_t* port, char *s);
 void serial_setint(serial_t* port, serialint_t value);
+int serial_handleinterrupt(registers_t state, void* voidport);
+
 serialint_t serial_getint(serial_t* port);
 #endif

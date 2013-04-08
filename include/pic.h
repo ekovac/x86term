@@ -21,7 +21,11 @@
 #define PIC2_COMMAND    PIC2
 #define PIC2_DATA   (PIC2+1)
 
-void PIC_remap(int offset1, int offset2);
-void IRQ_set_mask(unsigned char IRQline);
-void IRQ_clear_mask(unsigned char IRQline);
+void pic_remap(int offset1, int offset2); // Recommended values 0x20 and 0x28
+
+void pic_add_mask(uint16_t mask);
+void pic_del_mask(uint16_t mask);
+void pic_set_mask(uint16_t mask);
+uint16_t pic_get_mask();
+void pic_acknowledge();
 #endif

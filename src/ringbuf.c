@@ -1,6 +1,6 @@
 #include "ringbuf.h"
 #include "base.h"
-ringbuf_t* ringbuf_new() /
+ringbuf_t* ringbuf_new() 
 {
     ringbuf_t* buf;
     buf = (ringbuf_t*)malloc(sizeof(ringbuf_t));

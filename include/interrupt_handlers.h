@@ -1,8 +1,5 @@
 #ifndef X86TERM_INTERRUPT_HANDLERS_H
 #define X86TERM_INTERRUPT_HANDLERS_H
-void kb_isr(void);
-void serial_isr(void);
-void timer_isr(void);
 
 void isr0(void);
 void isr1(void);
@@ -36,5 +33,21 @@ void isr28(void);
 void isr29(void);
 void isr30(void);
 void isr31(void);
+void isr32(void);
+void isr33(void);
+void isr34(void);
+void isr35(void);
+void isr36(void);
+void isr37(void);
+void isr38(void);
+void isr39(void);
+void isr40(void);
+void isr41(void);
+void isr42(void);
+void isr43(void);
+void isr44(void);
+void isr45(void);
+void isr46(void);
+void isr47(void);
 
 #endif

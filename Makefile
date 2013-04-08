@@ -10,7 +10,7 @@ VTERMCFILES=$(wildcard $(LIBVTERM)/src/*.c)
 VTERMOFILES=$(VTERMCFILES:.c=.o)
 TBLFILES=$(wildcard $(LIBVTERM)/src/encoding/*.tbl)
 INCFILES=$(TBLFILES:.tbl=.inc)
-OBJECTS=obj/loader.o obj/base.o obj/display.o obj/interrupt_handlers.o obj/interrupts.o obj/keys.o obj/pic.o obj/main.o obj/segments.o obj/tables.o obj/serial.o obj/stub.o obj/ringbuf.o obj/termhandlers.o obj/timer.o
+OBJECTS=obj/loader.o obj/base.o obj/display.o obj/interrupt_handlers.o obj/interrupts.o obj/events.o obj/keys.o obj/pic.o obj/main.o obj/segments.o obj/tables.o obj/serial.o obj/stub.o obj/ringbuf.o obj/termhandlers.o obj/timer.o
 # Bootstrap code taken from wiki.osdev.org/Bare_bones
 all: x86term
 floppy: floppy.img

@@ -1,5 +1,8 @@
 #include "events.h"
+#include "pic.h"
 #include "string.h"
+#include "termhandlers.h"
+#include "display.h"
 
 static handlerentry_t handlers[X86EVENT_INTERRUPT_COUNT][X86EVENT_HANDLER_COUNT];
 void x86event_init()
@@ -8,6 +11,17 @@ void x86event_init()
 	return;
 }
 
+void x86event_unhandled(registers_t state)
+{
+	static int count = 3;
+	puts("Unhandled Interrupt: ");
+	put_bytes((uint8_t)*&(state.int_no), sizeof(int)); puts(" ");
+	put_bytes((uint8_t)*&(state.err_code), sizeof(int)); puts("\n");
+	puts("Executing instruction: ");
+	put_bytes((uint8_t*)&(state.eip), sizeof(int)); puts("\n");
+	count--;
+	if (count == 0) __asm__("hlt");
+}
 void x86event_fire(registers_t state)
 {
 	int i;
@@ -20,7 +34,8 @@ void x86event_fire(registers_t state)
 		retval = entry.handler(state, entry.user_data);
 		if (retval) break;
 	}
-
+	if (!retval) x86event_unhandled(state);
+	else pic_acknowledge();
 	return;
 }
 

@@ -1,4 +1,5 @@
 #include "serial.h"
+#include "termhandlers.h"
 
 const serialconfig_t DEFAULT_SERIALCONFIG = {
         .speed = 38400, 
@@ -20,14 +21,17 @@ void serial_init(serial_t* port, short combase, short irq, serialconfig_t config
     port->out_buf = ringbuf_new();
     port->exception = 0;
     /* Register interrupt handlers */
-    x86event_register(irq, serial_handleinterrupt, (void*)port);
+
+    /* TODO: check the PIC mapping and apply the appropriate offset instead of hardcoding it. */
+    x86event_register(port->irq+0x20, serial_handleinterrupt, (void*)port);
+    term_puts("Serial port initialized.\r\n");
 }
 
 int serial_handleinterrupt(registers_t state, void* voidport)
 {
     serial_t* port = (serial_t*)voidport;
     term_puts("Stuff from serial port!");
-    return 0;
+    return 1;
 }
 
 void serial_applycfg(serial_t* port)

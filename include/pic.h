@@ -23,6 +23,7 @@
 
 void pic_remap(int offset1, int offset2); // Recommended values 0x20 and 0x28
 
+void pic_mask_all();
 void pic_add_mask(uint16_t mask);
 void pic_del_mask(uint16_t mask);
 void pic_set_mask(uint16_t mask);

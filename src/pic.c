@@ -51,7 +51,10 @@ void pic_add_mask(uint16_t mask) {
 void pic_del_mask(uint16_t mask) {   
     pic_set_mask(pic_get_mask() & ~(mask));
 }
-
+void pic_mask_all()
+{
+    pic_set_mask(0xFFFF);
+}
 void pic_set_mask(uint16_t mask) {
     uint8_t pic1_val = mask & 0xFF;
     uint8_t pic2_val = (mask >> 8) & 0xFF;

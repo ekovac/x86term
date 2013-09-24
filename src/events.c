@@ -15,8 +15,8 @@ void x86event_unhandled(registers_t state)
 {
 	static int count = 3;
 	puts("Unhandled Interrupt: ");
-	put_bytes((uint8_t)*&(state.int_no), sizeof(int)); puts(" ");
-	put_bytes((uint8_t)*&(state.err_code), sizeof(int)); puts("\n");
+	put_bytes((uint8_t*)&(state.int_no), sizeof(int)); puts(" ");
+	put_bytes((uint8_t*)&(state.err_code), sizeof(int)); puts("\n");
 	puts("Executing instruction: ");
 	put_bytes((uint8_t*)&(state.eip), sizeof(int)); puts("\n");
 	count--;
@@ -27,6 +27,9 @@ void x86event_fire(registers_t state)
 	int i;
 	int retval;
 	handlerentry_t entry;
+
+	__asm__("cli");
+
 	for (i = 0; i < X86EVENT_HANDLER_COUNT; i++)
 	{
 		entry = handlers[state.int_no][i];
@@ -34,8 +37,11 @@ void x86event_fire(registers_t state)
 		retval = entry.handler(state, entry.user_data);
 		if (retval) break;
 	}
+	
 	if (!retval) x86event_unhandled(state);
 	else pic_acknowledge();
+
+	__asm__("sti");
 	return;
 }
 

@@ -59,7 +59,7 @@ typedef union {
 
 typedef struct {
 	unsigned short speed;
-	char data_bits; /* Valid values: 5-9; default is 8 */
+	char data_bits; /* Valid values: 5-9; defau5lt is 8 */
 	enum {
 		P_NONE = 0x0,
 		P_ODD = 0x1,
@@ -88,7 +88,7 @@ void serial_init(serial_t* port, short combase, short irq, serialconfig_t config
 void serial_applycfg(serial_t* port); /* Apply port->config's contents to the UART. */
 void serial_reset(serial_t* port);
 void serial_putc(serial_t* port, char c);
-void serial_getc(serial_t* port, char* c);
+char serial_getc(serial_t* port);
 void serial_puts(serial_t* port, char *s);
 void serial_setint(serial_t* port, serialint_t value);
 int serial_handleinterrupt(registers_t state, void* voidport);

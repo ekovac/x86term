@@ -29,9 +29,32 @@ void serial_init(serial_t* port, short combase, short irq, serialconfig_t config
 
 int serial_handleinterrupt(registers_t state, void* voidport)
 {
+    uint8_t b;
+    serialint_t intcfg;
+    linestatus_t linestatus;
     serial_t* port = (serial_t*)voidport;
-    term_puts("Stuff from serial port!");
-    return 1;
+
+    linestatus = (linestatus_t)inb(port->combase+5);
+    while (linestatus.rx_rdy) /* Received data */
+    {
+        b = inb(port->combase);
+        ringbuf_pushback(port->in_buf, b);
+        linestatus = (linestatus_t)inb(port->combase+5);
+    }
+
+    while (linestatus.tx_rdy & !ringbuf_isempty(port->out_buf))
+    {
+        b = ringbuf_popfront(port->out_buf);
+        outb(port->combase, b);
+        if (ringbuf_isempty(port->out_buf))
+        {
+            intcfg = serial_getint(port);
+            intcfg.tx_rdy = 0;
+            serial_setint(port, intcfg);
+        } 
+        linestatus = (linestatus_t)inb(port->combase+5);
+    }
+    return 0; /* We can't know that the interrupt ONLY referred to us. */
 }
 
 void serial_applycfg(serial_t* port)
@@ -64,6 +87,16 @@ serialint_t serial_getint(serial_t* port)
 void serial_setint(serial_t* port, serialint_t value)
 {
     outb(port->combase+1, value.byte_repr);
+}
+void serial_putc(serial_t* port, char c)
+{
+    return;
+}
+
+char serial_getc(serial_t* port)
+{
+    
+    return 0;
 }
 /*
 void serial_putc(short combase, char c)

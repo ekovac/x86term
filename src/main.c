@@ -17,6 +17,7 @@ int tmpkbd(registers_t state, void* user_data)
 
 void kmain(__unused void* mbd, __unused unsigned int magic)
 {
+    __asm__("cli");
     init_gdt();
     init_idt();
     x86event_init();
@@ -26,7 +27,6 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     pic_del_mask( 1<<COM1IRQ );
     pic_del_mask( 1<<1 );
     init_vterm();
-    
     serial_t port;
     serial_init(&port, COM1, COM1IRQ, DEFAULT_SERIALCONFIG);
     serialint_t rxrdy = {.rx_rdy = 1};
@@ -42,10 +42,18 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     //__asm__("int 0x21");
     //int a=0, b=0, c;
     //c=a/b;
+    int c;
     while (1)
     {
         __asm__("sti");
         __asm__("hlt");
+        while ( (c = serial_getc(&port)) != -1) 
+        {          
+            if (c != -1)
+            {
+                term_handleserial( (char)c );
+            }
+        }
     }
 
 

@@ -35,7 +35,7 @@ void x86event_fire(registers_t state)
 		entry = handlers[state.int_no][i];
 		if (entry.handler == NULL) continue;
 		retval = entry.handler(state, entry.user_data);
-		if (retval) break;
+		if (retval > 0) break;
 	}
 	
 	if (!retval) x86event_unhandled(state);
@@ -44,7 +44,7 @@ void x86event_fire(registers_t state)
 	__asm__("sti");
 	return;
 }
-
+/* in an eventhandler_t, returning 0 means completely unhandled, returning -1 means it might be unhandled. Other retvals mean handled. */
 int x86event_register(short int_no, eventhandler_t handler_f, void* user_data)
 {
 	int i;

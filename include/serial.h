@@ -88,7 +88,7 @@ void serial_init(serial_t* port, short combase, short irq, serialconfig_t config
 void serial_applycfg(serial_t* port); /* Apply port->config's contents to the UART. */
 void serial_reset(serial_t* port);
 void serial_putc(serial_t* port, char c);
-char serial_getc(serial_t* port);
+int serial_getc(serial_t* port);
 void serial_puts(serial_t* port, char *s);
 void serial_setint(serial_t* port, serialint_t value);
 int serial_handleinterrupt(registers_t state, void* voidport);

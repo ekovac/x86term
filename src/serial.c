@@ -54,7 +54,7 @@ int serial_handleinterrupt(registers_t state, void* voidport)
         } 
         linestatus = (linestatus_t)inb(port->combase+5);
     }
-    return 0; /* We can't know that the interrupt ONLY referred to us. */
+    return -1; /* We can't know that the interrupt ONLY referred to us. */
 }
 
 void serial_applycfg(serial_t* port)
@@ -93,10 +93,12 @@ void serial_putc(serial_t* port, char c)
     return;
 }
 
-char serial_getc(serial_t* port)
+int serial_getc(serial_t* port)
 {
-    
-    return 0;
+    if (ringbuf_isempty(port->in_buf))
+        return -1;
+    return (int)ringbuf_popfront(port->in_buf);
+
 }
 /*
 void serial_putc(short combase, char c)

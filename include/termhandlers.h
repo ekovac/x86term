@@ -1,7 +1,6 @@
 #ifndef X86TERM_TERMHANDLERS_H
 #define X86TERM_TERMHANDLERS_H
 #include "vterm.h"
-#include "ringbuf.h"
 
 extern VTerm* vterm;
 void term_handlescancode(char);

@@ -10,7 +10,7 @@ defined $kid or die "fork: $!";
 if( !$kid ) {
    # child
    open STDERR, ">&STDOUT"; # dup STDOUT onto STDERR
-   exec qw( qemu -serial pty -kernel x86term ) or die "exec: $!";
+   exec qw( qemu -S -s -serial pty -kernel x86term ) or die "exec: $!";
 }
 
 my $line = <$pipeh>;
@@ -26,6 +26,7 @@ defined $kid or die "fork: $!";
 $kid and exit(0);
 
 setsid();
+sleep 1;
 open my $pty, "+<", $ptypath or die "open($ptypath): $!";
 
 dup2( $pty->fileno, 0 ) or die "dup2: $!";

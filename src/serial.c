@@ -24,7 +24,6 @@ void serial_init(serial_t* port, short combase, short irq, serialconfig_t config
 
     /* TODO: check the PIC mapping and apply the appropriate offset instead of hardcoding it. */
     x86event_register(port->irq+0x20, serial_handleinterrupt, (void*)port);
-    term_puts("Serial port initialized.\r\n");
 }
 
 int serial_handleinterrupt(registers_t state, void* voidport)
@@ -95,9 +94,15 @@ void serial_putc(serial_t* port, char c)
 
 int serial_getc(serial_t* port)
 {
+    uint8_t c;
+
     if (ringbuf_isempty(port->in_buf))
         return -1;
-    return (int)ringbuf_popfront(port->in_buf);
+
+    c = ringbuf_popfront(port->in_buf);
+
+    return (int)c;
+    
 
 }
 /*

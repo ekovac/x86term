@@ -2,7 +2,7 @@
 #define X86TERM_EVENTS_H
 #include "interrupts.h"
 
-#define X86EVENT_HANDLER_COUNT (4)
+#define X86EVENT_HANDLER_COUNT (16)
 #define X86EVENT_INTERRUPT_COUNT (32)
 
 typedef int (*eventhandler_t)(registers_t state, void* user_data);

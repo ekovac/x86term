@@ -36,7 +36,6 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     term_puts("x86term - terminal emulator for bare x86 PCs\r\n"
               "(C) 2012 Philip \"digitalfox\" Kovac\r\n\r\n");
 
-
     x86event_register(1+0x20, &tmpkbd, NULL); // Bogus keyboard handler.
      
     //__asm__("int 0x21");
@@ -47,12 +46,20 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
     {
         __asm__("sti");
         __asm__("hlt");
-        while ( (c = serial_getc(&port)) != -1) 
-        {          
+
+        while (1) 
+        {
+
+            c = serial_getc(&port);
             if (c != -1)
             {
                 term_handleserial( (char)c );
             }
+            else
+            {
+                break;
+            }
+
         }
     }
 

@@ -10,13 +10,13 @@ defined $kid or die "fork: $!";
 if( !$kid ) {
    # child
    open STDERR, ">&STDOUT"; # dup STDOUT onto STDERR
-   exec qw( qemu -serial pty -kernel x86term ) or die "exec: $!";
+   exec qw( qemu-system-i386 -serial pty -kernel x86term ) or die "exec: $!";
 }
 
 my $line = <$pipeh>;
 
 # $line now contains something like  char device redirected to /dev/pts/4
-$line =~ m/^char device redirected to (.*)$/ or die "Expected to read ptypath, found: $line\n";
+$line =~ m/^char device redirected to (.*) \(label.*\)$/ or die "Expected to read ptypath, found: $line\n";
 my $ptypath = $1;
 
 print "Running bash --login against $ptypath\n";

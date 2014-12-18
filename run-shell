@@ -10,7 +10,7 @@ defined $kid or die "fork: $!";
 if( !$kid ) {
    # child
    open STDERR, ">&STDOUT"; # dup STDOUT onto STDERR
-   exec qw( qemu -serial pty -kernel x86term ) or die "exec: $!";
+   exec qw( qemu-system-i386 -serial pty -kernel x86term ) or die "exec: $!";
 }
 
 my $line = <$pipeh>;

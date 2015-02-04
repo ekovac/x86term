@@ -15,6 +15,7 @@ int tmpkbd(registers_t state, void* user_data)
     return 1;
 }
 
+
 void kmain(__unused void* mbd, __unused unsigned int magic)
 {
     __asm__("cli");
@@ -37,7 +38,6 @@ void kmain(__unused void* mbd, __unused unsigned int magic)
               "(C) 2012 Philip \"digitalfox\" Kovac\r\n\r\n");
 
     x86event_register(1+0x20, &tmpkbd, NULL); // Bogus keyboard handler.
-     
     //__asm__("int 0x21");
     //int a=0, b=0, c;
     //c=a/b;

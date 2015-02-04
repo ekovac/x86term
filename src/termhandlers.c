@@ -3,15 +3,15 @@
 #include "display.h"
 #include "stdlib.h"
 #include "timer.h"
+#include "ringbuf.h"
 #include <string.h>
-ringbuf_t serial_inbuf, serial_outbuf, kb_inbuf;
 
-VTerm* vterm;
 VTermScreen* vscreen;
 /* Callbacks that we'll need  */
 int term_damage(VTermRect rect, __unused void* user)
 {
     /* TODO: Reimplement in a less slow-ass way */
+    VTerm* vterm = user;
     VTermScreenCell cell;
     VTermPos pos;
     uint8_t fg, bg, color;
@@ -108,7 +108,8 @@ void init_vterm(void)
     vterm = vterm_new(disp.height, disp.width);
 
     vscreen = vterm_obtain_screen(vterm);
-    vterm_screen_set_callbacks(vscreen, &vtsc, NULL);
+    VTerm* vterm;
+    vterm_screen_set_callbacks(vscreen, &vtsc, vterm);
     vterm_screen_enable_altscreen(vscreen, 1);
     vterm_screen_reset(vscreen, 1);
     

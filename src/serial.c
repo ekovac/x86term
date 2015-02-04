@@ -102,8 +102,6 @@ int serial_getc(serial_t* port)
     c = ringbuf_popfront(port->in_buf);
 
     return (int)c;
-    
-
 }
 /*
 void serial_putc(short combase, char c)

@@ -15,7 +15,7 @@ Tested successfully on a couple of PIIX-board Intel systems, is known to boot (b
 How To Build/Use
 ------------
 
-The easiest way to get started is to download the floppy image from the *Downloads* section of the GitHub page. This, however, may be outdated.
+The easiest way to get started is to [download the floppy image.](https://github.com/downloads/ekovac/x86term/x86term-floppy.img.gz). This image is built manually extremely sporadically and may not be up-to-date with master.
 
 It's highly suggested that you install qemu and/or bochs if you plan to develop for _x86term_.
 
